@@ -1,16 +1,16 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, url_for,render_template
 
-from psd import (small_sample_dataset, total_data_in_time_range,
+from datavizapi.psd import (small_sample_dataset, total_data_in_time_range,
                  average_power_in_time_range,
                  average_power_in_time_range_in_freq_range)
-from sensor_metadata import get_sensor_metadata
+from datavizapi.sensor_metadata import get_sensor_metadata
 
-app = Flask(__name__)
+app = Flask(__name__,static_url_path='',static_folder='web/',template_folder='templates')
 
 
 @app.route('/')
 def index():
-    return jsonify(go_to="/api/dataset/small")
+    return render_template('index.html')
 
 
 @app.route('/api/sample/<count>')
