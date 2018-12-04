@@ -2,11 +2,11 @@ from datetime import datetime, timedelta
 
 SENSOR_DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 FILENAME_DATE_FORMAT = '%Y-%m-%d_%H_%M_%S'
+FRONTEND_DATE_FORMAT = '%Y-%m-%dT%H:%M'
 
 
 def parseDate(d, format=FILENAME_DATE_FORMAT):
     return datetime.strptime(d, format)
-
 
 def formatDate(d, format=SENSOR_DATE_TIME_FORMAT):
     return datetime.strftime(d, format)
@@ -22,3 +22,8 @@ def generateTimestamp(start_time, second, format=SENSOR_DATE_TIME_FORMAT):
             days=days, seconds=seconds, minutes=minutes, hours=hours), format)
 
     return timestamp
+
+def addNSeconds(start_time, sec=5):
+    dt=parseDate(start_time, SENSOR_DATE_TIME_FORMAT)
+    ndt=dt+timedelta(seconds=sec)
+    return formatDate(ndt,SENSOR_DATE_TIME_FORMAT)

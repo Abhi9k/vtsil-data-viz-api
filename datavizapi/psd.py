@@ -42,7 +42,8 @@ def total_data_in_time_range(start_time, end_time):
 
         group_by_daq_id[daq_id]['timestamp'].append(row[1])
         group_by_daq_id[daq_id]['average_power'].append(row[2])
-        group_by_daq_id[daq_id]['power_spectrum'].append(row[3].split(","))
+        group_by_daq_id[daq_id]['power_spectrum'].append(map(float,row[3].split(",")))
+        # group_by_daq_id[daq_id]['power_spectrum'].append(row[3].split(","))
     return {'freqs': freqs.split(","), 'data': group_by_daq_id}
 
 
