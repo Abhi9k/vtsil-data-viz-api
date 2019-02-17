@@ -23,7 +23,7 @@ function onWebWorkerMessage(event) {
 function startWebWorker() {
     if(typeof(Worker) !== "undefined") {
         if(typeof(web_worker) == "undefined") {
-            web_worker = new Worker("js/web_worker.js");
+            web_worker = new Worker("js/webWorker.js");
         }
         web_worker.onmessage = onWebWorkerMessage;
     } else {}
