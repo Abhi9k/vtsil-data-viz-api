@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>Goodwin Hall Visualization</title>
+	<!-- <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet"> -->
+	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
+	<link rel="stylesheet" type="text/css" href="css/button-style.css"/>
+	<link rel="stylesheet" type="text/css" href="css/style.css"/>
+</head>
+<body>
+	<div id="tooltip" class="hidden">
+		<p><span id="key"></span></p>
+		<p><span id="value1"></span></p>
+		<p><span id="value2"></span></p>
+		<p><span style="width: 100%;align-text:center; font-size:0.75em">Click to select</span></p>
+	</div>
+	<div class="export-view hidden">
+		<h4>Last 1-hour data will be downloaded for following sensors</h4>
+		<p></p>
+		<div><button class="pure-material-button-contained" id="export-yes">Export</button><button class="pure-material-button-contained" id="export-no">Not Yet</button></div>
+	</div>
+	<!-- <section class="header"> -->
+		<!-- <div class="title"><h2>Life of Goodwin Hall <span class="selection-buttons"><button id="reset-selection" class="pure-material-button-contained">Reset Selection</button><button id="export-data" class="pure-material-button-contained">Export</button></span></h2>
+		</div> -->
+
+	<div class="navbar">
+		<div class="nav-left">
+			<div class="brand">
+				<p><a href="/">VTSIL</a></p>
+			</div>
+			<div class="dash-name">
+				<p>Life of Goodwin Hall</p>
+			</div>
+		</div>
+		<div class="nav-right">
+			<div id="data-export" onclick="ondataexportclick()" title="Export data">
+				<p><a href="javascript:void(0);"><i class="fa fa-file-export"></i></a></p>
+			</div>
+			<div id="undo-selection" title="Undo last selection">
+				<p><a href="javascript:void(0);" onclick="onundoselectionclick()"><i class="fa fa-undo"></i></a></p>
+			</div>
+			<div id="viz-type" onchange="onviztypechanged()" title="Change visualization">
+				<div class="nav-dropdown">
+					<div class="nav-dropdown-body">
+						<select id="select-viz-type">
+							<option value="live">Live</option>
+							<option value="single-sensor">Individual</option>
+							<option value="compare-sensor">Compare</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div id="refresh-interval">
+				<p><a href="javascript:void(0);" onclick="onrefreshintervalclick()"><i class="fa fa-redo"></i> Every 5 sec</a></p>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- </section> -->
+	<section class="content">
+		<div id="v1">
+			<!-- <div class="v1 highlight hidden"></div> -->
+			<div class="floor first"></div>
+			<div class="floor second"></div>
+			<div class="floor third"></div>
+			<div class="floor fourth"></div>
+			<div class="floor fifth"></div>
+		</div>
+		<div id="v2-parent">
+			<div id="v2"></div>
+			<div class="v2 highlight hidden"></div>
+			<div class="zoom-view">
+				<div class="zoom-in"><span><i class="icon-zoom-in"></i></span></div>
+				<div class="zoom-out"><span><i class="icon-zoom-out"></i></span></div>
+			</div>
+		</div>
+		<div id="v3-parent">
+			<div id="v3"></div>
+			<!-- <div class="v3 highlight hidden"></div> -->
+			<div class="zoom-view">
+				<div class="zoom-in"><span><i class="icon-zoom-in"></i></span></div>
+				<div class="zoom-out"><span><i class="icon-zoom-out"></i></span></div>
+			</div>
+		</div>
+		<div class="interaction">
+
+		</div>
+		
+	</section>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://unpkg.com/d3-3d/build/d3-3d.min.js"></script>
+<script src="https://d3js.org/d3-color.v1.min.js"></script>
+<script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script type="text/javascript" src="js/script.js"></script>
+<script type="text/javascript" src="js/v1.js"></script>
+<script type="text/javascript" src="js/v2.js"></script>
+<script type="text/javascript" src="js/v3.js"></script>
+<script type="text/javascript" src="js/interaction.js"></script>
+</body>
+</html>
