@@ -37,9 +37,23 @@ function initV2() {
 	v2.svg.append('g').attr('class', 'axis-label label-y').append('text');
 
 }
-
 function drawV2() {
+	
+	var present_ids=v2_data.map(d=>d.id);
+	f1_sensors = f1_sensors.filter(sid=>present_ids.includes(sid));
+	f2_sensors = f2_sensors.filter(sid=>present_ids.includes(sid));
+	f3_sensors = f3_sensors.filter(sid=>present_ids.includes(sid));
+	f4_sensors = f4_sensors.filter(sid=>present_ids.includes(sid));
+	f5_sensors = f5_sensors.filter(sid=>present_ids.includes(sid));
 	var sensor_ids=f1_sensors.concat(f2_sensors,f3_sensors,f4_sensors,f5_sensors);
+	var tickValues = [f1_sensors[f1_sensors.length-1],
+					 f2_sensors[f2_sensors.length-1],
+					 f3_sensors[f3_sensors.length-1],
+					 f4_sensors[f4_sensors.length-1],
+					 f5_sensors[f5_sensors.length-1]];
+	// sensor_ids=sensor_ids.filter(sid=>present_ids.includes(sid));
+
+
 	v2_data_flat=v2_data.map(d=>d.data).flat();
 	var x_scale = d3.scaleBand()
 						.domain(sensor_ids)
@@ -107,7 +121,7 @@ function drawV2() {
 				.attr('stroke', 'none')
 				.on('mouseover', function(d, i) {
 	                var tooltip_data = [
-	                    "Sensor ID: "+this.parentNode.__data__.id,
+	                    "Sensor: "+sensor_info[this.parentNode.__data__.id]['daq_name'],
 	                    {
 	                        "key": "Power",
 	                        "value": d.p.toExponential(2)
@@ -126,13 +140,7 @@ function drawV2() {
 			.merge(sensor_rects)
 				.attr('fill', function(d,i) {return color(color_scale(d.p));});
 
-	// var x_axis = d3.axisBottom(x_scale).tickValues(x_scale.domain().filter(function(d,i) {return !(i%5)}));
-	var x_axis = d3.axisBottom(x_scale).tickValues(
-		[f1_sensors.slice().reverse()[0],
-		 f2_sensors.slice().reverse()[0],
-		 f3_sensors.slice().reverse()[0],
-		 f4_sensors.slice().reverse()[0],
-		 f5_sensors.slice().reverse()[0]]);
+	var x_axis = d3.axisBottom(x_scale).tickValues(tickValues);
 	var y_axis = d3.axisLeft(y_scale).ticks(10);
 
 	v2.svg.select('g.x')

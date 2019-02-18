@@ -8,7 +8,7 @@ from datetime import datetime
 
 cluster = Cluster(
         ['node0','node1','node2'],
-        load_balancing_policy=RoundRobinPolicy,
+        load_balancing_policy=RoundRobinPolicy(),
         port=9042)
 
 session = cluster.connect('vtsil')
@@ -19,6 +19,7 @@ class BaseModel(Model):
     __abstract__ = True
     __keyspace__ = 'vtsil'
     __connection__ = 'VTSIL Cluster'
+
 
 
 class SensorInfo(BaseModel):

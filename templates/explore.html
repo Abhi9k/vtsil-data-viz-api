@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>Goodwin Hall Visualization</title>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-datetimepicker.min.css"/>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
+	<link rel="stylesheet" type="text/css" href="css/button-style.css"/>
+	<link rel="stylesheet" type="text/css" href="css/style.css"/>
+</head>
+<body>
+	<div id="tooltip" class="hidden">
+		<p><span id="key"></span></p>
+		<p><span id="value1"></span></p>
+		<p><span id="value2"></span></p>
+		<p><span style="width: 100%;align-text:center; font-size:0.75em">Click to select</span></p>
+	</div>
+
+	<div class="navbar">
+		<div class="nav-left">
+			<div class="brand">
+				<p><a href="/">VTSIL</a></p>
+			</div>
+			<div class="dash-name">
+				<p>Life of Goodwin Hall</p>
+			</div>
+		</div>
+		<div class="nav-right">
+			<div id="data-export" onclick="ondataexportclick()" title="Export data">
+				<p><a href="javascript:void(0);"><i class="fa fa-file-export"></i></a></p>
+			</div>
+			<div id="undo-selection" title="Undo last selection">
+				<p><a href="javascript:void(0);" onclick="onundoselectionclick()"><i class="fa fa-undo"></i></a></p>
+			</div>
+			<div id="viz-type" onchange="onviztypechanged()" title="Change visualization">
+				<div class="nav-dropdown">
+					<div class="nav-dropdown-body">
+						<select id="select-viz-type">
+							<option value="single-sensor">Individual</option>
+							<option value="live">Live</option>
+							
+							<!-- <option value="compare-sensor">Compare</option> -->
+						</select>
+					</div>
+				</div>
+			</div>
+			<div id="refresh-interval">
+				<p><a href="javascript:void(0);" onclick="onrefreshintervalclick()"><i class="fa fa-redo"></i> Every 5 sec</a></p>
+			</div>
+		</div>
+	</div>
+
+	<section class="content">
+		<div id="query" class="container">
+			<div class="row">
+				<div class="col-sm-2">
+					<input type="text" class="form-control" id="sensor_name" placeholder="Sensor Name" value="" >
+				</div>
+				<div class="col-sm-4">
+					    <div class="input-group date form_datetime" data-date="2019-02-16T20:45:32Z" data-date-format="dd MM yyyy - HH:ii p" data-link-field="dtp_input_1">
+					        <input class="form-control" size="16" type="text" value="" readonly placeholder="From Time">
+					        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+							<span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+					    </div>
+						<input type="hidden" id="dtp_input_1" value="" /><br/>
+				</div>
+				<div class="col-sm-4">
+					    <div class="input-group date to_datetime" data-date="2019-02-16T20:45:32Z" data-date-format="dd MM yyyy - HH:ii p" data-link-field="dtp_input_2">
+					        <input class="form-control" size="16" type="text" value="" readonly placeholder="To Time">
+					        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+							<span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+					    </div>
+						<input type="hidden" id="dtp_input_2" value="" /><br/>
+				</div>
+				<div class="col-sm-2">
+					<input id="explore-fetch" class="btn btn-primary" type="submit" value="Fetch">
+				</div>
+			</div>
+		</div>
+		<div id="psd"></div>
+		<div id="raw"></div>
+	</section>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-fetch.v1.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="js/helper.js"></script>
+<script type="text/javascript" src="js/exploration.js"></script>
+<script type="text/javascript" src="js/interaction.js"></script>
+
+<script type="text/javascript">
+    $('.form_datetime').datetimepicker({
+        weekStart: 0,
+        todayBtn:  0,
+		autoclose: 1,
+		todayHighlight: 0,
+		startView: 2,
+		forceParse: 0,
+        showMeridian: 1
+    });
+    $('.to_datetime').datetimepicker({
+        weekStart: 0,
+        todayBtn:  0,
+		autoclose: 1,
+		todayHighlight: 0,
+		startView: 2,
+		forceParse: 0,
+        showMeridian: 1
+    });
+	// $('.to_datetime')
+	// 	.datetimepicker()
+	// 	.on('changeDate', function(ev){
+	// 		console.log(new Date(ev.date.valueOf()));
+	// 	});
+
+    d3.select('#explore-fetch')
+    	.on('click', function() {
+    		var sensor = d3.select('#sensor_name').property('value');
+    		var start_date = d3.select('#dtp_input_1').attr('value');
+    		var end_date = d3.select('#dtp_input_2').attr('value');
+    		fetchExplorationData(sensor, start_date, end_date);
+    	});
+
+
+window.addEventListener("DOMContentLoaded", function() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    initExploration();
+});
+
+function fetchExplorationData(sensor, start_date, end_date) {
+	var api = "http://128.173.25.223/api/explore/"+sensor+"?from="+start_date+"&to="+end_date;
+	console.log(api)
+	d3.json(api).then(function(response) {
+    	var exploration_data=response;
+    	drawExploration(exploration_data);
+    });
+}
+</script>
+</body>
+</html>

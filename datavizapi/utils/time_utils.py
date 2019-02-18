@@ -8,6 +8,9 @@ utc_tz = pytz.utc
 def roundToHour(d):
     return d.replace(minute=0, second=0, microsecond=0)
 
+def currTime():
+    return pytz.utc.localize(datetime.now())
+
 def parseTime(time_str, tz, format):
     local_tz=timezone(tz)
     d=datetime.strptime(time_str, format)
@@ -18,7 +21,7 @@ def parseTime(time_str, tz, format):
 def formatTime(d, tz, format, is_utc=True):
     local_tz=timezone(tz)
     if not is_utc:
-        d_utc=d.localize(utc_tz)
+        d_utc=utc_tz.localize(d)
     else:
         d_utc=d
     d_local=d_utc.astimezone(local_tz)
@@ -26,7 +29,7 @@ def formatTime(d, tz, format, is_utc=True):
 
 def editedTime(d, is_utc=True, days=0, seconds=0, microseconds=0):
     if not is_utc:
-        d_utc = d.localize(utc_tz)
+        d_utc = utc_tz.localize(d)
     else:
         d_utc=d
     new_d_utc=d_utc+timedelta(days=days, seconds=seconds, microseconds=microseconds)

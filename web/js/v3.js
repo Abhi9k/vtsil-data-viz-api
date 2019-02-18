@@ -40,14 +40,19 @@ function initV3() {
 var area,x_inverse_scale,x_inverse_scale_index,stack,x_scale,y_scale,color_scale,color,x_axis,y_axis,p;
 
 function drawV3() {
+
+	var keys = Object.keys(sid_floor_mapping);
+	var present_keys = Object.keys(v3_data[0].value);
+	keys = keys.filter(k=>present_keys.includes(k));
+	keys = keys.map(x=>+x);
 	stack = d3.stack()
-					.keys(d3.range(1,198))
+					.keys(keys)
 					.value((d,key)=>d['value'][key])
 					.order(d3.stackOrderDescending);
 
 	var s_data = stack(v3_data);
 
-	var y_min = d3.min(s_data.flat(), d=>d[1]);
+	var y_min = d3.min(s_data.flat(), d=>d[0]);
 	var y_max = d3.max(s_data.flat(), d=>d[1]);
 
 	x_scale = d3.scaleTime()
@@ -67,7 +72,7 @@ function drawV3() {
 					.range([v3.h-v3.padding.b,v3.padding.t]);
     
     color_scale = d3.scaleLinear()
-    					.domain([0,196])
+    					.domain([0,Object.keys(sid_floor_mapping).length])
     					.range([0,1]);
 
     color = d3.scaleSequential(d3.interpolateSpectral);
@@ -97,7 +102,7 @@ function drawV3() {
 		        	d.id = d.key;
 		        	var curr_val=d[Math.round(x_inverse_scale_index(x_inverse_scale(d3.event.x)))];
 	                var tooltip_data = [
-	                    "Sensor ID: "+d.id,
+	                    "Sensor: "+sensor_info[d.id]['daq_name'],
 	                    {
 	                        "key": "Power",
 	                        "value": (curr_val[1]-curr_val[0]).toExponential(2)
@@ -151,21 +156,22 @@ function drawV3() {
 		.call(g => g.select(".domain").remove());
 
 	v3.svg.select('g.y')
-			.attr('transform', 'translate('+(v3.padding.l)+',0)')
+			.attr('transform', 'translate('+(v3.padding.l)+','+(0)+')')
 		.call(y_axis)
 		.call(g=>g.select('.domain').remove());
 
 	v3.svg.select('g.axis-label').select('text')
-			.attr('transform','translate('+(v3.w/2)+","+(v3.h-10)+")")
+			.attr('transform','translate('+(v3.w/2)+","+(v3.h-v3.padding.b/2+v3.padding.t)+")")
 			.attr('text-anchor', 'middle')
 			.attr('stroke', 'white')
 			.text('Time');
 
 }
 
+
 function updateV3() {
 	var s_data = stack(v3_data);
-	var y_min = d3.min(s_data.flat(), d=>d[1]);
+	var y_min = d3.min(s_data.flat(), d=>d[0]);
 	var y_max = d3.max(s_data.flat(), d=>d[1]);
     color = d3.scaleSequential(d3.interpolateSpectral);	
 	x_scale = d3.scaleTime()
@@ -183,10 +189,15 @@ function updateV3() {
 					.domain([y_min, y_max])
 					.range([v3.h-v3.padding.b,v3.padding.t]);
 	color_scale = d3.scaleLinear()
-	    					.domain([0,196])
+	    					.domain([0,Object.keys(sid_floor_mapping).length])
 	    					.range([0,1]);
+	area = d3.area()
+				.x(d=>x_scale(new Date(d.data.ts)))
+				.y0(d=>y_scale(d[0]))
+				.y1(d=>y_scale(d[1]));
+
 	x_axis = d3.axisBottom(x_scale)
-					.ticks(d3.timeMinute.every(1))
+					.ticks(d3.timeMinute.every(0.5))
 					.tickFormat(d3.timeFormat("%I:%M:%S"));
 
 	p = Math.max(0, d3.precisionRound(0.0, 1.0) - 1)
