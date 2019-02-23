@@ -10,7 +10,8 @@ app = Flask(__name__,static_url_path='',static_folder='web/',template_folder='te
 
 
 def getCookieValue(st):
-    start_time = '2019-02-16 20:45:32'
+    start_time = '2019-02-19 10:45:32'
+    # start_time = '2019-02-16 20:45:32'
 
     curr_time = currTime()
     if st is None:
@@ -94,6 +95,9 @@ def getExplorationForSensor(sensor_name):
     from_time = parseTime(from_time_str, 'US/Eastern', constants.RES_DATE_FORMAT)
     to_time = parseTime(to_time_str, 'US/Eastern', constants.RES_DATE_FORMAT)
 
+    if((sid is None) or (from_time>to_time)):
+        return jsonify({'msg':'error'})
+
     raw = db_op.fetchSensorData(from_time, to_time, sids=[sid], descending=False)
     psd = db_op.fetchPSD(from_time, to_time, sids=[sid], get_power_dist=False, descending=False)
 
@@ -102,10 +106,12 @@ def getExplorationForSensor(sensor_name):
     for data in raw:
         sample_freq = len(data.data)
         micros = 1000000/sample_freq
-        for i in range(sample_freq):
-            ts = editedTime(data.ts, microseconds=i*micros, is_utc=False)
-            ts = formatTime(ts, 'US/Eastern', constants.DATE_FORMAT)
-            response['raw'].append([ts, data.data[i]])
+        ts = editedTime(data.ts, is_utc=False)
+        response['raw'].append([ts, sum(data.data)/sample_freq])
+        # for i in range(sample_freq):
+        #     ts = editedTime(data.ts, microseconds=i*micros, is_utc=False)
+        #     ts = formatTime(ts, 'US/Eastern', constants.DATE_FORMAT)
+        #     response['raw'].append([ts, data.data[i]])
     for data in psd:
         ts = formatTime(data.ts, 'US/Eastern', constants.RES_DATE_FORMAT, is_utc=False)
         response['psd'].append([ts, data.total_power])

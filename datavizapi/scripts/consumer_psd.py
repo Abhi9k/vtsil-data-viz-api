@@ -1,22 +1,23 @@
-from confluent_kafka import Consumer, KafkaError
+from confluent_kafka import Consumer
 from scipy import signal, integrate
 import datavizapi.cassandra_operations as db_op
 import json
 
-c = Consumer({     
-        'bootstrap.servers': 'node0,node1,node2',
-        'group.id': 'mygroup',
-        'auto.offset.reset': 'earliest'})
+c = Consumer({
+    'bootstrap.servers': 'node0,node1,node2',
+    'group.id': 'mygroup',
+    'auto.offset.reset': 'earliest'})
 
 c.subscribe(['^rawData*'])
 daq_name_to_id_map = {}
 
+
 def getDaqId(daq_name):
     if daq_name in daq_name_to_id_map:
         return daq_name_to_id_map[daq_name]
-    sensor_obj=db_op.sensorObjects
+    sensor_obj = db_op.sensorObjects
     for i in range(len(sensor_obj)):
-        if sensor_obj[i].daq_name==daq_name:
+        if sensor_obj[i].daq_name == daq_name:
             daq_name_to_id_map[daq_name] = sensor_obj[i].id
             return daq_name_to_id_map[daq_name]
 
@@ -27,13 +28,17 @@ def delivery_report(err, msg):
     if err is not None:
         print('Message delivery failed: {}'.format(err))
     else:
-        print('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
+        print('Message delivered to {} [{}]'.format(
+            msg.topic(), msg.partition()))
+
 
 def power_spectrum(input_arr, sampling_f=256.0,
                    scaling='density', window='hann',
                    window_size=256):
     window = signal.get_window(window, window_size)
-    return signal.welch(input_arr, fs=sampling_f, scaling=scaling, window=window)
+    return signal.welch(
+        input_arr, fs=sampling_f, scaling=scaling, window=window)
+
 
 while True:
     msg = c.poll(1)
@@ -45,6 +50,6 @@ while True:
     msg = json.loads(msg.value())
     freqs, power = power_spectrum(msg['d'])
     average_power = integrate.simps(power)
-    sid=getDaqId(msg['daq_name'])
+    sid = getDaqId(msg['daq_name'])
     db_op.insertSensorData(sid, msg['ts'], msg['d'])
     db_op.insertPSD(sid, average_power, power, msg['ts'])
