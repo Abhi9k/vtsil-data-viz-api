@@ -1,19 +1,18 @@
 from flask import (
-    Flask, jsonify, request, url_for,
-    render_template,make_response)
+    Flask, jsonify, request,
+    render_template, make_response)
 import datavizapi.cassandra_operations as db_op
 from datavizapi.utils.time_utils import (
-    currTime, editedTime, formatTime, parseTime)
+    editedTime, formatTime, parseTime)
 import datavizapi.constants as constants
 
-app = Flask(__name__,static_url_path='',static_folder='web/',template_folder='templates')
+app = Flask(__name__, static_url_path='', static_folder='web/', template_folder='templates')
 
 
 def getCookieValue(st):
     start_time = '2019-02-19 10:45:32'
     # start_time = '2019-02-16 20:45:32'
 
-    curr_time = currTime()
     if st is None:
         st = start_time
     else:
@@ -23,18 +22,19 @@ def getCookieValue(st):
 
     return st
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @app.route('/explore')
 def explore():
     return render_template('explore.html')
 
+
 @app.route('/api/stream', methods=('get',))
 def streaming():
-    num_of_seconds = int(request.args.get('ns'))
-
     from_d_str = getCookieValue(request.cookies.get('st'))
     from_d = parseTime(from_d_str, 'US/Eastern', constants.RES_DATE_FORMAT)
 
@@ -61,16 +61,16 @@ def streaming():
         temp = {"id": str(sid), "data": []}
         l = len(v.power_dist)
         si = 0
-        while si<l:
+        while si < l:
             temp['data'].append({"f": float(si), "p": v.power_dist[si]})
-            si+=1
+            si += 1
         response['v2'].append(temp)
 
-    resp=make_response(jsonify(response))
+    resp = make_response(jsonify(response))
     resp.set_cookie('st', from_d_str)
 
-
     return resp
+
 
 @app.route('/api/sensor_info', methods=('get',))
 def getSensorInfo():
@@ -86,6 +86,7 @@ def getSensorInfo():
         }
     return jsonify(resp_dict)
 
+
 @app.route('/api/explore/<sensor_name>')
 def getExplorationForSensor(sensor_name):
     from_time_str = request.args.get('from')
@@ -95,8 +96,8 @@ def getExplorationForSensor(sensor_name):
     from_time = parseTime(from_time_str, 'US/Eastern', constants.RES_DATE_FORMAT)
     to_time = parseTime(to_time_str, 'US/Eastern', constants.RES_DATE_FORMAT)
 
-    if((sid is None) or (from_time>to_time)):
-        return jsonify({'msg':'error'})
+    if((sid is None) or (from_time > to_time)):
+        return jsonify({'msg': 'error'})
 
     raw = db_op.fetchSensorData(from_time, to_time, sids=[sid], descending=False)
     psd = db_op.fetchPSD(from_time, to_time, sids=[sid], get_power_dist=False, descending=False)
@@ -105,9 +106,8 @@ def getExplorationForSensor(sensor_name):
 
     for data in raw:
         sample_freq = len(data.data)
-        micros = 1000000/sample_freq
         ts = editedTime(data.ts, is_utc=False)
-        response['raw'].append([ts, sum(data.data)/sample_freq])
+        response['raw'].append([ts, sum(data.data) / sample_freq])
         # for i in range(sample_freq):
         #     ts = editedTime(data.ts, microseconds=i*micros, is_utc=False)
         #     ts = formatTime(ts, 'US/Eastern', constants.DATE_FORMAT)
@@ -117,7 +117,6 @@ def getExplorationForSensor(sensor_name):
         response['psd'].append([ts, data.total_power])
 
     return jsonify(response)
-
 
 
 if __name__ == '__main__':

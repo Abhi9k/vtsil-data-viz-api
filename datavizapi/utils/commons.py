@@ -1,5 +1,6 @@
 import time_utils
 
+
 def splitRangeInHours(start_time, end_time):
     dates = []
     d = time_utils.roundToHour(start_time)
