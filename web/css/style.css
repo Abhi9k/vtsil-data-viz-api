@@ -189,6 +189,7 @@ body {
     justify-content: space-between;
     align-items: center;
     height: 10vh;
+    min-height: 60px;
     font-family: 'Roboto', sans-serif;
     color: white;
     background-color: rgb(33, 150, 243);
@@ -296,3 +297,28 @@ body {
     margin-top: 30px;
 }
 
+
+
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

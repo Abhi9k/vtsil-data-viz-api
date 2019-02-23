@@ -118,7 +118,7 @@ function dragged() {
         yScale3dOuter.rotateY(beta + yStartAngle)([yLineOuter[id]]),
         cubes3D.rotateY(beta + yStartAngle)(cubesData[id])
     ];
-    processData(id,data, 0);
+    processData(id,data, 250);
 }
 
 function dragStart() {
@@ -145,6 +145,7 @@ function processData(id, data, tt){
             .attr('fill', d3.rgb(33, 150, 243))
             .attr('stroke', function(d){ return d3.color(d.color).darker(2);})
             .attr('stroke-width', 0.5)
+            .attr('opacity',1)
 	        .on("hovered", function(d, i) {
 	            sid = d3.event.detail.id;
                 d3.range(5).forEach(function(floor) {
@@ -200,8 +201,8 @@ function processData(id, data, tt){
         	.attr('class', 'face')
         .merge(faces)
             .transition()
-            .delay(500)
-            .duration(500)
+            .delay(tt)
+            .duration(tt)
         	.attr('d', cubes3D.draw);
 
     yScaleInner
@@ -236,12 +237,38 @@ function makeCube(h, x, z){
         {x: x + 3, y: h, z: z - 3}, // BACK  TOP RIGHT
     ];
 }
+// var Q=10000000;
+// function heightScale(arr) {
+//     var quantiles = [];
+//     for(i=1;i<=Q;i++){
+//         quantiles.push(d3.quantile(arr, i/Q));
+//     }
+//     function interpolater(x) {
+//         for(i=0;i<quantiles.length-1;i++) {
+//             if(x<=quantiles[i])
+//                 return i;
+//         }
+//     }
+//     return interpolater;
+// }
 
 function drawV1() {
+
+    v1_data_values = Object.values(v1_data.value);
+
+
+
+
+    hs = d3.scaleLog()
+                            .domain(d3.extent(v1_data_values))
+                            // .domain([MIN_POWER,MAX_POWER])
+                            .range([0, 1]);
+
     height_scale = d3.scaleLinear()
-                            .domain(d3.extent(Object.values(v1_data.value), d=>parseFloat(d)))
-                            .range([-1, -1*v1.h/2])
-                            .clamp(true);
+                            .domain([0,1])
+                            // .domain([MIN_POWER,MAX_POWER])
+                            .range([0, -1*v1.h/3]);
+
     x_scale = d3.scaleLinear()
                             .domain([d3.min(floormap_outer.flat(), d=>parseFloat(d[0])),
                                      d3.max(floormap_outer.flat(), d=>parseFloat(d[0])),])
@@ -255,7 +282,7 @@ function drawV1() {
 
     color = d3.scaleSequential(d3.interpolateYlOrRd);
     color_scale = d3.scaleLinear()
-                            .domain(d3.extent(Object.values(v1_data.value), d=>parseFloat(d)))
+                            .domain(d3.extent(v1_data_values))
                             .range([0,1]);
 
     origin = [x_scale.range()[0]+15, y_scale.range()[0]]
@@ -279,7 +306,10 @@ function drawV1() {
         for(let i=0;i<sensor_coords[id].length; i++) {
             let x=x_scale(parseFloat(sensor_coords[id][i][2]));
             let z=y_scale(parseFloat(sensor_coords[id][i][3]));
-            let h=height_scale(parseFloat(v1_data.value[sensor_coords[id][i][0]]))
+            let h=height_scale(hs(v1_data.value[sensor_coords[id][i][0]]))
+            // console.log(v1_data.value[sensor_coords[id][i][0]]);
+            // console.log(hs(parseFloat(v1_data.value[sensor_coords[id][i][0]])));
+            // console.log(h);
 
             let _cube=makeCube(h,x,z);
             _cube.id=sensor_coords[id][i][0];
@@ -293,7 +323,7 @@ function drawV1() {
             yScale3dOuter([yLineOuter[id]]),
             cubes3D(cubesData[id])
         ];
-        processData(id, data, 1000);
+        processData(id, data, 250);
     });
 }
 

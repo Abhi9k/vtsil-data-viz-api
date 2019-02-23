@@ -38,6 +38,7 @@ function initV2() {
 
 }
 function drawV2() {
+
 	
 	var present_ids=v2_data.map(d=>d.id);
 	f1_sensors = f1_sensors.filter(sid=>present_ids.includes(sid));
@@ -55,6 +56,9 @@ function drawV2() {
 
 
 	v2_data_flat=v2_data.map(d=>d.data).flat();
+	// console.log(d3.extent(v2_data_flat, d=>d.p));
+	// console.log(d3.min(v2_data_flat, d=>d.p));
+	// console.log(d3.max(v2_data_flat, d=>d.p));
 	var x_scale = d3.scaleBand()
 						.domain(sensor_ids)
 						.range([v2.padding.l, v2.w-v2.padding.r])
@@ -65,12 +69,12 @@ function drawV2() {
 						.domain(d3.extent(d3.range(v2_data[0].data.length)))
 						.range([v2.h-v2.padding.b,v2.padding.t]);
 
-	var color_scale = d3.scaleLinear()
-						.domain([d3.min(v2_data_flat,d=>d.p), d3.max(v2_data_flat,d=>d.p)])
-						.range([0,1]);
+	var color_scale = d3.scaleLog()
+						// .domain(d3.extent(v2_data_flat, d=>d.p))
+						.domain([MIN_POWER, MAX_POWER])
+						.range(d3.range(0,2));
 
 	var color = d3.scaleSequential(d3.interpolateYlOrRd);
-
 	var sensors = v2.svg.select('g.bars')
 					.selectAll('g')
 					.data(v2_data);

@@ -6,6 +6,8 @@ var web_worker,v1_data,v2_data,v3_data,W,H,sensor_info,sid_floor_mapping,f1_sens
 // var f4_sensors = ["137", "139", "138", "143", "207", "245", "244", "109", "241", "240", "243", "242", "246", "181", "179", "182", "183", "180", "186", "187", "184", "185", "142", "168", "239", "238", "234", "235", "236", "237", "233", "201", "205", "140", "208"].sort(function(a,b){return +a-+b});
 // var f5_sensors = ["24", "25", "26", "27", "22", "23", "199", "198", "197", "178", "203", "111", "110", "176", "174", "173", "172", "30", "177", "175", "202", "100", "200", "204", "141"].sort(function(a,b){return +a-+b});
 var is_first=true;
+var MIN_POWER=0.0000000000000000000009;
+var MAX_POWER=0.0009
 function onWebWorkerMessage(event) {
     msg=event.data;
     if(msg[0]==='data') {
@@ -91,5 +93,5 @@ window.addEventListener("DOMContentLoaded", function() {
 
 function update() {
     web_worker.postMessage(['updateData']);
-    setTimeout(update, 5000);
+    setTimeout(update, 1000);
 }

@@ -207,8 +207,8 @@ function updateV3() {
 	v3.svg.select('g.paths')
 			.selectAll('path')
 			.data(s_data)
-				.transition()
-				.duration(500)
+				// .transition()
+				// .duration(500)
 				.attr('fill', (d,i)=>color(color_scale(i)))
 				.attr('d', area);
 	v3.svg.select('g.x')

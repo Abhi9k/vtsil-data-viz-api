@@ -17,11 +17,15 @@
 	<link rel="stylesheet" type="text/css" href="css/style.css"/>
 </head>
 <body>
+	<div class="loader hidden"></div>
 	<div id="tooltip" class="hidden">
 		<p><span id="key"></span></p>
 		<p><span id="value1"></span></p>
 		<p><span id="value2"></span></p>
 		<p><span style="width: 100%;align-text:center; font-size:0.75em">Click to select</span></p>
+	</div>
+	<div class="alert alert-danger hidden" role="alert">
+ 		Invalid query!
 	</div>
 
 	<div class="navbar">
@@ -102,7 +106,7 @@
 		autoclose: 1,
 		todayHighlight: 0,
 		startView: 2,
-		forceParse: 0,
+		forceParse: 1,
         showMeridian: 1
     });
     $('.to_datetime').datetimepicker({
@@ -111,7 +115,7 @@
 		autoclose: 1,
 		todayHighlight: 0,
 		startView: 2,
-		forceParse: 0,
+		forceParse: 1,
         showMeridian: 1
     });
 	// $('.to_datetime')
@@ -138,9 +142,20 @@ window.addEventListener("DOMContentLoaded", function() {
 function fetchExplorationData(sensor, start_date, end_date) {
 	var api = "http://128.173.25.223/api/explore/"+sensor+"?from="+start_date+"&to="+end_date;
 	console.log(api)
+	d3.select('.loader').classed('hidden', false);
 	d3.json(api).then(function(response) {
+		if(response['msg']==='error') {
+			d3.select('.alert').classed('hidden', false);
+			return;
+		}
+		else
+			d3.select('.alert').classed('hidden', true);
     	var exploration_data=response;
     	drawExploration(exploration_data);
+    	d3.select('.loader').classed('hidden', true);
+    }).catch(function(error) {
+		d3.select('.alert').classed('hidden', false);
+		d3.select('.loader').classed('hidden', true);
     });
 }
 </script>

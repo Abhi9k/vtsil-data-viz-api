@@ -21,6 +21,7 @@ function initExploration() {
 				.attr('width', "100%")
 				.attr('height', '100%')
 				.attr('stroke', 'white');
+
 	exploration.psd.svg = d3.select('#psd').append('svg')
 				.attr('width', "100%")
 				.attr('height', '100%')
@@ -56,7 +57,9 @@ function drawExplorationHelper(data, settings, title) {
     var xScale=d3.scaleTime()
         .domain(d3.extent(data,function(d){return new Date(d[0]);}))
         .range([settings.padding.l,settings.w-settings.padding.r]);
-
+	var xScale2=d3.scaleTime()
+        .domain(d3.extent(data,function(d){return new Date(d[0]);}))
+        .range([settings.padding.l,settings.w-settings.padding.r]);
     var yScale=d3.scaleLinear()
         .domain(d3.extent(data,function(d){return d[1];}))
         .range([settings.h-settings.padding.b,settings.padding.t]);
@@ -68,12 +71,13 @@ function drawExplorationHelper(data, settings, title) {
 
     var line=d3.line().x(d=>xScale(new Date(d[0]))).y(d=>yScale(d[1]));
 
-	settings.svg.selectAll('path')
+	settings.svg.select('.paths').selectAll('path')
 	        .data([data]).enter()
 	        .append('path')
+	        .merge(settings.svg.select('.paths').selectAll('path'))
 	        	.attr('d',line)
 	        	.attr("stroke",d3.rgb(33, 150, 243))
-	        	.attr("stroke-width", 0.2)
+	        	.attr("stroke-width", 0.6)
 	        	.attr('fill', 'none');
 
 	settings.svg.select('g.x')
@@ -97,6 +101,7 @@ function drawExplorationHelper(data, settings, title) {
 	        .style("font-size", "16px")
 	        .attr("stroke", "white")  
 	        .text(title);
+
 }
 function drawExploration(exploration_data) {
 	drawExplorationHelper(exploration_data['raw'], exploration.raw, "Raw Sensor Values");
