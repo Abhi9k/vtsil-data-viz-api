@@ -2,6 +2,7 @@ import h5py
 import json
 from confluent_kafka import Consumer
 from confluent_kafka import Producer
+import ftp_operations as f_ops
 
 SENSOR_DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S:%f'
 FILENAME_DATE_FORMAT = '%Y-%m-%d_%H_%M_%S'
@@ -62,5 +63,9 @@ while True:
     fname = msg['file_name']
     sample_rate = msg['sample_rate']
     ts = fname[:-3]
+
+    ftp = f_ops.connectAndGetFTP()
+    f_ops.fetchFiles(ftp, [fname])
+
     data = readH5(fname, sample_rate)
     putRawDataInQueue(ts.split('/')[-1], data)
