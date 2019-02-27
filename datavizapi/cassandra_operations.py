@@ -5,6 +5,9 @@ from cassandra.cqlengine.query import BatchQuery
 from cassandra import ConsistencyLevel
 import utils.time_utils as time_utils
 from utils.commons import splitRangeInHours
+import constants as constants
+
+timezone = constants.APP_TZ
 
 SENSOR_DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S:%f'
 FILENAME_DATE_FORMAT = '%Y-%m-%d_%H_%M_%S'
@@ -12,6 +15,46 @@ FILENAME_DATE_FORMAT = '%Y-%m-%d_%H_%M_%S'
 
 def getSensorInfoAll():
     return SensorInfo.objects.all()
+
+
+def formatPSDResponse(response):
+    results = {}
+    for res in response:
+        if res.id not in results:
+            results[res.id] = []
+        results[res.id].append(
+            {
+                'ts': time_utils.formatTime(res.ts, timezone, constants.RES_DATE_FORMAT),
+                'total_power': res.total_power,
+                'power_dist': res.power_dist
+            })
+    return results
+
+
+def emptyPSDResponse(sids, ts, sample_f=256):
+    results = {}
+    for sid in sids:
+        results[sid] = []
+        results[sid].append(
+            {
+                'ts': time_utils.formatTime(ts, timezone, constants.RES_DATE_FORMAT),
+                'total_power': 0.0,
+                'power_dist': [0] * sample_f
+            })
+    return results
+
+
+def formatSensorResponse(response):
+    results = {}
+    for res in response:
+        if res.id not in results:
+            results[res.id] = []
+        results[res.id].append(
+            {
+                'ts': time_utils.formatTime(res.ts, timezone, constants.RES_DATE_FORMAT),
+                'data': res.data,
+            })
+    return results
 
 
 sensorObjects = getSensorInfoAll()
@@ -44,7 +87,7 @@ def insertSensorInfo(fname):
 
 
 def insertPSD(sid, total_power, power_dist, ts):
-    ts = time_utils.parseTime(ts, 'US/Eastern', FILENAME_DATE_FORMAT)
+    ts = time_utils.parseTime(ts, timezone, FILENAME_DATE_FORMAT)
     date = time_utils.roundToHour(ts)
     PSDByHour.consistency(ConsistencyLevel.LOCAL_ONE).create(
         id=sid, date=date, ts=ts,
@@ -52,10 +95,25 @@ def insertPSD(sid, total_power, power_dist, ts):
 
 
 def insertSensorData(sid, ts, data):
-    ts = time_utils.parseTime(ts, 'US/Eastern', FILENAME_DATE_FORMAT)
+    ts = time_utils.parseTime(ts, timezone, FILENAME_DATE_FORMAT)
     date = time_utils.roundToHour(ts)
     SensorDataByHour.consistency(ConsistencyLevel.LOCAL_ONE).create(
         id=sid, ts=ts, date=date, data=data)
+
+
+def getSensorsByFloor(floor_num):
+    sensor_objects = sensorObjects
+    if sensorObjects is None:
+        sensor_objects = getSensorInfoAll()
+    response = []
+    for obj in sensor_objects:
+        if obj.floor_num == str(floor_num):
+            temp = {
+                'daq_name': obj.daq_name,
+                'sid': obj.id
+            }
+            response.append(temp)
+    return response
 
 
 def fetchPSD(from_ts, to_ts, sids=None, get_power_dist=True, get_avg_power=True, descending=True):
@@ -78,32 +136,21 @@ def fetchPSD(from_ts, to_ts, sids=None, get_power_dist=True, get_avg_power=True,
         query = query.order_by('ts')
     query = query.defer(defer_fields)
 
-    return query.all()
+    response = query.all()
+
+    if len(response) == 0:
+        response = emptyPSDResponse(sids, from_ts)
+    else:
+        response = formatPSDResponse(response)
+    return response
 
 
-def fetchLatestPSD(from_d, sids=None, get_power_dist=True, get_avg_power=True):
-    if sids is None:
-        sids = daq_name_to_sid_map.values()
-
-    dates = splitRangeInHours(from_d, from_d)
-
-    defer_fields = ['date']
-    if get_power_dist is False:
-        defer_fields.append('power_dist')
-    if get_avg_power is False:
-        defer_fields.append('total_power')
-    query = PSDByHour.objects.consistency(ConsistencyLevel.LOCAL_ONE)
-    query = query.filter(id__in=sids)
-    query = query.filter(date__in=dates)
-    query = query.filter(ts__gte=from_d)
-    query = query.filter(ts__lte=from_d)
-    query = query.order_by('-ts')
-    query = query.defer(defer_fields)
-
-    from_d = time_utils.editedTime(from_d, seconds=1)
-    res = query.all()
-
-    return res
+def fetchLatestPSD(from_d, sids=None, get_power_dist=True, get_avg_power=True, to_d=None):
+    if to_d is None:
+        to_d = time_utils.editedTime(from_d, seconds=1)
+    return fetchPSD(
+        from_d, to_d, sids=sids, get_power_dist=get_power_dist,
+        get_avg_power=get_avg_power, descending=True)
 
 
 def fetchSensorData(from_ts, to_ts, sids=None, descending=True):
@@ -122,4 +169,7 @@ def fetchSensorData(from_ts, to_ts, sids=None, descending=True):
     if not descending:
         query = query.order_by('ts')
 
-    return query.all()
+    response = query.all()
+    if len(response) != 0:
+        response = formatSensorResponse(response)
+    return response

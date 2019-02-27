@@ -23,7 +23,7 @@ def parseTime(time_str, tz, format):
 
 def formatTime(d, tz, format, is_utc=True):
     local_tz = timezone(tz)
-    if not is_utc:
+    if d.tzinfo is None or d.tzinfo.utcoffset(d) is None:
         d_utc = utc_tz.localize(d)
     else:
         d_utc = d

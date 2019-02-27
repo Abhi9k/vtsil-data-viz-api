@@ -1,0 +1,12 @@
+cassandra-driver
+virtualenv
+virtualenvwrapper
+scipy
+pytz
+uwsgi
+flask
+wheel
+confluent_kafka
+ftplib
+h5py
+numpy

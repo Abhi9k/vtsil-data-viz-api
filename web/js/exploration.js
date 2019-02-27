@@ -16,6 +16,10 @@ exploration['psd'] = {
 	svg:null
 }
 
+function onWebWorkerMessage(event) {
+
+}
+
 function initExploration() {
 	exploration.raw.svg = d3.select('#raw').append('svg')
 				.attr('width', "100%")
@@ -107,3 +111,28 @@ function drawExploration(exploration_data) {
 	drawExplorationHelper(exploration_data['raw'], exploration.raw, "Raw Sensor Values");
 	drawExplorationHelper(exploration_data['psd'], exploration.psd, "Average Power");
 }
+
+window.addEventListener("DOMContentLoaded", function() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    $('.form_datetime').datetimepicker({
+        weekStart: 0,
+        todayBtn:  0,
+        autoclose: 1,
+        todayHighlight: 0,
+        startView: 2,
+        forceParse: 1,
+        showMeridian: 1
+    });
+    $('.to_datetime').datetimepicker({
+        weekStart: 0,
+        todayBtn:  0,
+        autoclose: 1,
+        todayHighlight: 0,
+        startView: 2,
+        forceParse: 1,
+        showMeridian: 1
+    });
+    startWebWorker();
+    initExploration();
+});
