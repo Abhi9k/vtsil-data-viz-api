@@ -166,19 +166,16 @@ def getExplorationForSensor(sensor_name):
     if((sid is None) or (from_time > to_time)):
         return jsonify({'msg': 'error'})
 
-    raw = db_op.fetchSensorData(from_time, to_time, sids=[sid], descending=False)
+    # raw = db_op.fetchSensorData(from_time, to_time, sids=[sid], descending=False)
     psd = db_op.fetchPSD(from_time, to_time, sids=[sid], get_power_dist=False, descending=False)
 
     response = {'raw': [], 'psd': []}
-    print psd
 
-    for data in raw[sid]:
-        sample_freq = len(data['data'])
-        ts = editedTime(data['ts'], is_utc=False)
-        response['raw'].append([ts, sum(data['data']) / sample_freq])
+    # for data in raw[sid]:
+    #     sample_freq = len(data['data'])
+    #     response['raw'].append([data['ts'], sum(data['data']) / sample_freq])
     for data in psd[sid]:
-        ts = formatTime(data['ts'], timezone, constants.RES_DATE_FORMAT, is_utc=False)
-        response['psd'].append([ts, data['total_power']])
+        response['psd'].append([data['ts'], data['total_power']])
 
     return make_response(jsonify(response))
 
