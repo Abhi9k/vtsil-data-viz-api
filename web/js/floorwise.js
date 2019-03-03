@@ -1,5 +1,6 @@
-var per_floor = {}, floorwise_pause=true, idx=0, floorwise_data, sids, dates, sensor_info, floor_num=1, power_values;
+var per_floor = {}, floorwise_pause=true, idx=0, floorwise_data, sids, dates, sensor_info, floor_num=1, power_values, is_dragging=false;
 var progressBar;
+var p = Math.max(0, d3.precisionRound(0.0, 1.0) - 1)
 per_floor['floor'] = {
 	padding: {l:30,b:30,t:30,r:30},
 	h:0,
@@ -42,6 +43,18 @@ function getTimestampValue(idx) {
 
 }
 
+function stream() {
+	if(is_dragging===true) {
+		setTimeout(stream, 500);
+		return;
+	}
+	idx += 1;
+	drawSensors(floormap_outer, sensor_coords[+floor_num-1]);
+	moveTracker(idx)
+	if(idx<dates.length)
+		setTimeout(stream, 500);
+}
+
 function startFloorwiseStreaming(data) {
 	floorwise_data = data;
 	idx = 0;
@@ -53,15 +66,6 @@ function startFloorwiseStreaming(data) {
 	power_values = power_values.sort((a,b)=>(a-b))
     dates = data[sids[0]].map(x=>[x[0]])
     drawPlayback(dates);
-	function stream() {
-		if(floorwise_pause===false)
-			return;
-		idx += 1;
-		drawSensors(floormap_outer, sensor_coords[+floor_num-1]);
-		moveTracker(idx)
-		if(idx<dates.length)
-			setTimeout(stream, 4000);
-	}
 	stream();
 
 }
@@ -79,10 +83,10 @@ function togglePlay() {
 	d3.select('#floorwise-play').classed('hidden', !floorwise_pause);
 }
 
-d3.select('#floorwise-play')
-	.on('click', togglePlay);
-d3.select('#floorwise-pause')
-	.on('click', togglePlay);
+// d3.select('#floorwise-play')
+// 	.on('click', togglePlay);
+// d3.select('#floorwise-pause')
+// 	.on('click', togglePlay);
 
 
 
@@ -167,6 +171,10 @@ function drawPlayback(data) {
 	var x_scale = d3.scaleTime()
 						.domain(d3.extent(data, d=>new Date(d[0])))
 						.range([settings.padding.l, settings.w-settings.padding.r]);
+
+	var index_scale = d3.scaleLinear()
+							.domain([settings.padding.l, settings.w-settings.padding.r])
+							.range([0, dates.length])
 	var line = d3.line()
 					.x(d=>x_scale(new Date(d[0])))
 					.y(d=>10);
@@ -174,6 +182,20 @@ function drawPlayback(data) {
 	var playback = settings.svg.select('g.track')
 						.selectAll('path')
 						.data([data]);
+
+	// this.trackerDragStarted = function(d) {
+	// 	is_dragging = true;
+	// }
+
+	// this.trackerDragEnded = function(d) {
+	// 	is_dragging = false;
+	// 	idx = parseInt(index_scale(d3.event.x));
+	// }
+
+	// this.trackerDragged = function(d) {
+	// 	d3.select(this).attr("cx", x_scale(d3.event.x));
+	// }
+
 	playback
 		.enter()
 		.append('path')
@@ -181,7 +203,34 @@ function drawPlayback(data) {
 			.attr('d', line)
 			.attr('stroke-width', 6)
 			.attr('stroke', 'white')
-			.attr('fill', 'white');
+			.attr('fill', 'white')
+			.on('mouseover', function() {
+				d3.select('#tooltip').classed('hidden', false);
+                var position = [
+                    d3.event.x,
+                    d3.event.y
+                ];
+				position=calculateTooltipPosition(position[0],position[1],W,H);
+
+				hoveredIdx = parseInt(index_scale(position[0]-settings.x-settings.padding.l));
+
+				d3.select('#tooltip')
+					.style('left', (position[0]+10)+"px")
+					.style('top', (position[1]+10)+"px");
+				d3.select('#playback-time').text(dates[hoveredIdx]);
+
+			})
+			.on('mouseout', function() {
+				d3.select('#tooltip').classed('hidden', true);
+			})
+			.on('click', function() {
+				var mouse_x = d3.event.x-settings.x-settings.padding.l;
+				d3.select(this).attr("cx", x_scale(mouse_x));
+				var prevIdx = idx;
+				idx = parseInt(index_scale(mouse_x));
+				if(prevIdx>=dates.length)
+					stream();
+			});
 
 	settings.svg.select('g.tracker').select('circle')
 			.attr('cx', settings.padding.l+5)
@@ -219,7 +268,7 @@ function moveTracker(idx) {
 }
 
 function onSensorSelection(sid) {
-	console.log(sid+ " selected");
+	// console.log(sid+ " selected");
 	var api = "http://128.173.25.223/api/psd/"+sid+"?d="+dates[idx];
 
 	d3.json(api).then(function(response) {
@@ -264,14 +313,32 @@ function drawSensors(floor_plan_outer, sensor_locations) {
 				.attr('stroke', 'none')
 				.on('click', d=>onSensorSelection(d[0]))
 				.attr('opacity', 0.5)
-			.merge(circles)
 				.attr('cx', d=>x_scale(d[2]))
 				.attr('cy', d=>y_scale(d[3]))
+				.on('mouseover', function(d) {
+					d3.select('#tooltip').classed('hidden', false);
+	                var position = [
+	                    d3.event.x,
+	                    d3.event.y
+	                ];
+					position=calculateTooltipPosition(position[0],position[1],W,H);
+					d3.select('#tooltip')
+						.style('left', (position[0]+10)+"px")
+						.style('top', (position[1]+10)+"px");
+					d3.select('#playback-time').text(sensor_info[+d[0]]['daq_name']+","+d3.format("." + p + "e")(getPowerValue(d[0], idx)));
+
+				})
+				.on('mouseout', function() {
+					d3.select('#tooltip').classed('hidden', true);
+				})
+			.merge(circles)
+				.transition()
 				.attr('r', d=>radius_scale(getPowerValue(d[0], idx)))
 				.attr('fill', d3.rgb(253, 133, 58));
 	circles.exit().remove();
 
 }
+
 
 function drawPSD(data) {
 	var settings = per_floor.psd;
@@ -289,11 +356,11 @@ function drawPSD(data) {
 	psdlines.enter()
 			.append('path')
 				.attr('d', line)
-				.attr('fill', 'none');
+				.attr('fill', 'none')
+				.attr('stroke', d3.rgb(33, 150, 243));
 	psdlines.exit().remove();
 
 	var x_axis = d3.axisBottom(x_scale);
-	var p = Math.max(0, d3.precisionRound(0.0, 1.0) - 1)
 	var y_axis = d3.axisLeft(y_scale)
 					.tickFormat(d3.format("." + p + "e"));
 
@@ -310,7 +377,7 @@ function drawPSD(data) {
 		    .attr("x", 0-(settings.h/2))
 		    .attr("dy", "1em")
 			.attr('text-anchor', 'middle')
-			.text('Average Power');
+			.text('PSD');
 
 	settings.svg.select('g.label-x').select('text')
 			.attr('transform','translate('+(settings.w/2)+","+(settings.h-10)+")")

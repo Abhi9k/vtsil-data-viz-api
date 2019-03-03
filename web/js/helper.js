@@ -63,6 +63,7 @@ function startWebWorker() {
 
 function processSensorInfo(msg) {
     sensor_info = msg[1];
+    console.log(sensor_info);
     sids = Object.keys(sensor_info);
     sid_floor_mapping={}
     f1_sensors=[],f2_sensors=[],f3_sensors=[],f4_sensors=[],f5_sensors=[];

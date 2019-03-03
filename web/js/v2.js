@@ -1,5 +1,5 @@
 var v2 = {
-	padding: {l:40,b:25,t:5,r:40},
+	padding: {l:60,b:25,t:5,r:60},
 	h:0,
 	w:0,
 	y:0,
@@ -135,6 +135,7 @@ function drawV2() {
 	                    	"value": i
 	                    }
 	                ];
+
 	                var position = [
 	                    d3.event.x,
 	                    d3.event.y
@@ -158,14 +159,14 @@ function drawV2() {
 
 	v2.svg.select('g.label-x').select('text')
 			.attr("transform", "rotate(-90)")
-		    .attr("y", 2)
+		    .attr("y", 10)
 		    .attr("x", 0-(v2.h/2))
 		    .attr("dy", "1em")
 			.attr('text-anchor', 'middle')
 			.text('Frequency');
 
 	v2.svg.select('g.label-y').select('text')
-			.attr('transform','translate('+(v2.w/2)+","+(v2.h-10)+")")
+			.attr('transform','translate('+(v2.w/2)+","+(v2.h-5)+")")
 			.attr('text-anchor', 'middle')
 			.text('Sensor ID');
 }

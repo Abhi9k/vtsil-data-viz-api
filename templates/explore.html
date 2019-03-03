@@ -19,10 +19,7 @@
 <body>
 	<div class="loader hidden"></div>
 	<div id="tooltip" class="hidden">
-		<p><span id="key"></span></p>
-		<p><span id="value1"></span></p>
-		<p><span id="value2"></span></p>
-		<p><span style="width: 100%;align-text:center; font-size:0.75em">Click to select</span></p>
+		<p><span id="explore-time"></span></p>
 	</div>
 	<div class="alert alert-danger hidden" role="alert">
  		Invalid query!
@@ -57,7 +54,7 @@
 				</div>
 			</div>
 			<div id="refresh-interval">
-				<p><a href="javascript:void(0);" onclick="onrefreshintervalclick()"><i class="fa fa-redo"></i> Every 5 sec</a></p>
+				<p><a href="javascript:void(0);" onclick="onrefreshintervalclick()"><i class="fa fa-redo"></i> Every 4 sec</a></p>
 			</div>
 		</div>
 	</div>
@@ -90,7 +87,7 @@
 			</div>
 		</div>
 		<div id="psd"></div>
-		<div id="raw"></div>
+		<!-- <div id="raw"></div> -->
 	</section>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-fetch.v1.min.js"></script>

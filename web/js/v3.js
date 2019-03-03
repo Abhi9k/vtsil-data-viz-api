@@ -1,5 +1,5 @@
 var v3 = {
-	padding: {l:40,b:40,t:5,r:40},
+	padding: {l:60,b:40,t:5,r:60},
 	h:0,
 	w:0,
 	y:0,
@@ -161,7 +161,7 @@ function drawV3() {
 		.call(g=>g.select('.domain').remove());
 
 	v3.svg.select('g.axis-label').select('text')
-			.attr('transform','translate('+(v3.w/2)+","+(v3.h-v3.padding.b/2+v3.padding.t)+")")
+			.attr('transform','translate('+(v3.w/2)+","+(v3.h-v3.padding.b/2+v3.padding.t+5)+")")
 			.attr('text-anchor', 'middle')
 			.attr('stroke', 'white')
 			.text('Time');

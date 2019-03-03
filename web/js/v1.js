@@ -238,12 +238,6 @@ function drawV1() {
             let x=x_scale(parseFloat(sensor_coords[id][i][2]));
             let z=y_scale(parseFloat(sensor_coords[id][i][3]));
             let h=height_scale(hs(v1_data.value[sensor_coords[id][i][0]]))
-            console.log(hs(v1_data.value[sensor_coords[id][i][0]]));
-            console.log(h);
-            // console.log(v1_data.value[sensor_coords[id][i][0]]);
-            // console.log(hs(parseFloat(v1_data.value[sensor_coords[id][i][0]])));
-            // console.log(h);
-
             let _cube=makeCube(h,x,z);
             _cube.id=sensor_coords[id][i][0];
             _cube.color=color(color_scale(parseFloat(v1_data.value[sensor_coords[id][i][0]])));
