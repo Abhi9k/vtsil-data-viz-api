@@ -121,47 +121,7 @@
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script type="text/javascript" src="js/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript" src="js/bootstrap-slider.min.js"></script>
-<script type="text/javascript" src="js/helper.js"></script>
-<script type="text/javascript" src="js/floorwise.js"></script>
-<script type="text/javascript" src="js/interaction.js"></script>
-
-<script type="text/javascript">
-
-function fetchFloorPSD(floor_num, start_date, end_date) {
-	var api = "http://128.173.25.223/api/floor/psd/"+(floor_num)+"?from="+start_date+"&to="+end_date;
-	// var api = "http://128.173.25.223/api/explore/"+sensor+"?from="+start_date+"&to="+end_date;
-	d3.select('.loader').classed('hidden', false);
-	d3.json(api).then(function(response) {
-		if(response['msg']==='error') {
-			d3.select('.alert').classed('hidden', false);
-			return;
-		}
-		else
-			d3.select('.alert').classed('hidden', true);
-		startFloorwiseStreaming(response);
-    	d3.select('.loader').classed('hidden', true);
-    }).catch(function(error) {
-    	console.log(error);
-		d3.select('.alert').classed('hidden', false);
-		d3.select('.loader').classed('hidden', true);
-    });
-}
-
-function onFetchButtonClicked() {
-    var floor_select = document.getElementById('select-floor-number');
-    var selected = floor_select.options[floor_select.selectedIndex];
-    var floor_selected = selected.value;
-    var start_date = d3.select('#dtp_input_1').attr('value');
-    var end_date = d3.select('#dtp_input_2').attr('value');
-    if(start_date===undefined || start_date==="" || end_date===undefined || end_date==="")
-    	return
-    fetchFloorPSD(floor_selected, start_date, end_date);
-}
-
-d3.select('#explore-fetch')
-    .on('click', function() {
-    	onFetchButtonClicked();
-    });
-</script>
+<script type="text/javascript" src="js/commons.js"></script>
+<script type="text/javascript" src="js/floorwise-viz.js"></script>
 </body>
 </html>

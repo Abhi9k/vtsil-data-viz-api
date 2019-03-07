@@ -92,37 +92,8 @@
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-fetch.v1.min.js"></script>
 <script type="text/javascript" src="js/bootstrap-datetimepicker.min.js"></script>
-<script type="text/javascript" src="js/helper.js"></script>
-<script type="text/javascript" src="js/exploration.js"></script>
-<script type="text/javascript" src="js/interaction.js"></script>
+<script type="text/javascript" src="js/commons.js"></script>
+<script type="text/javascript" src="js/historical-viz.js"></script>
 
-<script type="text/javascript">
-function fetchExplorationData(sensor, start_date, end_date) {
-	var api = "http://128.173.25.223/api/explore/"+sensor+"?from="+start_date+"&to="+end_date;
-	d3.select('.loader').classed('hidden', false);
-	d3.json(api).then(function(response) {
-		if(response['msg']==='error') {
-			d3.select('.alert').classed('hidden', false);
-			return;
-		}
-		else
-			d3.select('.alert').classed('hidden', true);
-    	var exploration_data=response;
-    	drawExploration(exploration_data);
-    	d3.select('.loader').classed('hidden', true);
-    }).catch(function(error) {
-		d3.select('.alert').classed('hidden', false);
-		d3.select('.loader').classed('hidden', true);
-    });
-}
-
-d3.select('#explore-fetch')
-    .on('click', function() {
-        var sensor = d3.select('#sensor_name').property('value');
-        var start_date = d3.select('#dtp_input_1').attr('value');
-        var end_date = d3.select('#dtp_input_2').attr('value');
-        fetchExplorationData(sensor, start_date, end_date);
-    });
-</script>
 </body>
 </html>
