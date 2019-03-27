@@ -116,7 +116,7 @@
 	    fetchFloorPSD(floor_selected, start_date, end_date);
 	}
 
-	function floorSelected() {
+	mod.floorSelected = function() {
 	    var floor_select = document.getElementById('select-floor-number');
 	    var selected = floor_select.options[floor_select.selectedIndex];
 	    var floor_selected = selected.value;
