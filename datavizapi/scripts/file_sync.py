@@ -3,8 +3,11 @@ import time
 import json
 import ftp_operations as f_ops
 from confluent_kafka import Producer
+from datavizapi import AppConfig
 
-p = Producer({'bootstrap.servers': 'node0,node1,node2'})
+config = AppConfig.getConfig()
+
+p = Producer({'bootstrap.servers': ",".join(config['kafka']['servers'])})
 
 SCRIPT_BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -39,14 +42,15 @@ def putNewfilenames(data, sample_rate):
             "file_name": d
         }
         p.produce(
-            'incomingFiles', json.dumps(payload), callback=delivery_report)
+            config['kafka']['consumer_h5']['topic'],
+            json.dumps(payload), callback=delivery_report)
     p.poll(1)
 
 
 while True:
     last_date = f_ops.getLastReadDate()
     ftp = f_ops.connectAndGetFTP()
-    ftp.cwd('data')
+    ftp.cwd(config['file_sync']['remote_folder'])
     config_fname = f_ops.fetchConfigFile(ftp)
     sample_rate = parseSampleRateFromConfig(config_fname)
     records = f_ops.getFileMetadata(ftp)

@@ -3,21 +3,25 @@ import json
 from confluent_kafka import Consumer
 from confluent_kafka import Producer
 import ftp_operations as f_ops
+from datavizapi import AppConfig
+
+config = AppConfig.getConfig()
 
 SENSOR_DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S:%f'
-FILENAME_DATE_FORMAT = '%Y-%m-%d_%H_%M_%S'
+FILENAME_DATE_FORMAT = config['file_sync']['file_name_format']
 
 p = Producer({
-    'bootstrap.servers': 'node0,node1,node2',
+    'bootstrap.servers': ",".join(config['kafka']['servers']),
     'default.topic.config': {'acks': '1'},
-    'retries': 2,
+    'retries': config['kafka']['producer_h5']['retries'],
     'max.in.flight.requests.per.connection': 1,
-    'linger.ms': 100})
+    'linger.ms': config['kafka']['producer_h5']['linger_ms']})
 c = Consumer({
-    'bootstrap.servers': 'node0,node1,node2',
-    'group.id': 'mygroup',
-    'auto.offset.reset': 'earliest'})
-c.subscribe(['incomingFiles'])
+    'bootstrap.servers': ",".join(config['kafka']['servers']),
+    'group.id': config['kafka']['consumer_h5']['group'],
+    'auto.offset.reset': config['kafka']['consumer_h5']['offset']})
+
+c.subscribe([config['kafka']['consumer_h5']['topic']])
 
 
 def delivery_report(err, msg):

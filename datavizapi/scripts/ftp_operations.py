@@ -1,11 +1,16 @@
 import os
 from ftplib import FTP
 from datetime import datetime
+from datavizapi import AppConfig
 
-TEMP_FILE_PATH = './.lastread'
-CREDENTIALS_FILE = './.credentials'
-DATE_TIME_FORMAT = '%Y-%m-%d_%H_%M_%S'
-DESTINATION_DIR = './'
+config = AppConfig.getConfig()
+
+ftp_config = config['file_sync']
+
+TEMP_FILE_PATH = ftp_config['temp_file_path']
+CREDENTIALS_FILE = ftp_config['credentials_file_path']
+DATE_TIME_FORMAT = ftp_config['file_name_format']
+DESTINATION_DIR = ftp_config['destination_dir']
 
 
 def getUsernamePassword():
@@ -26,7 +31,7 @@ def getLastReadDate():
     return resp
 
 
-def connectAndGetFTP(host='10.0.1.8', port=8000):
+def connectAndGetFTP(host=ftp_config['ftp_remote_ip'], port=ftp_config['ftp_remote_port']):
     username, password = getUsernamePassword()
     ftp = FTP()
     ftp.set_debuglevel(0)

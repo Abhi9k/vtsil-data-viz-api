@@ -3,21 +3,23 @@ from cassandra.policies import RoundRobinPolicy
 from cassandra.cqlengine import columns
 from cassandra.cqlengine import connection
 from cassandra.cqlengine.models import Model
+from datavizapi import AppConfig
 
+config = AppConfig.getConfig()
 
 cluster = Cluster(
-    ['node0', 'node1', 'node2'],
+    config['cassandra']['nodes'],
     load_balancing_policy=RoundRobinPolicy(),
-    port=9042)
+    port=config['cassandra']['port'])
 
-session = cluster.connect('vtsil')
+session = cluster.connect(config['cassandra']['keyspace'])
 session.default_fetch_size = None
 connection.register_connection('VTSIL Cluster', session=session)
 
 
 class BaseModel(Model):
     __abstract__ = True
-    __keyspace__ = 'vtsil'
+    __keyspace__ = config['cassandra']['keyspace']
     __connection__ = 'VTSIL Cluster'
 
 

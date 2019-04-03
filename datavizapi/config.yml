@@ -1,0 +1,37 @@
+---
+cassandra:
+  nodes:
+    - node0
+    - node1
+    - node2
+  port: 9042
+  keyspace: vtsil
+
+kafka:
+  servers:
+    - node0
+    - node1
+    - node2
+  consumer_psd:
+    group: 'psd'
+    offset: 'earliest'
+    topic:
+      - '^rawData*'
+  producer_h5:
+    retries: 2
+    max_in_flight: 1
+    linger_ms: 100
+  consumer_h5:
+    group: 'filesync'
+    offset: 'earliest'
+    topic: incomingFiles
+
+file_sync:
+  remote_folder: 'data'
+  temp_file_path: './.lastread'
+  credentials_file_path: './.credentials'
+  destination_dir: './'
+  file_name_format: '%Y-%m-%d_%H_%M_%S'
+  ftp_remote_ip: '10.0.1.8'
+  ftp_remote_port: '8000'
+...

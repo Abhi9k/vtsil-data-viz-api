@@ -1,14 +1,18 @@
 from confluent_kafka import Consumer
 from scipy import signal, integrate
 import datavizapi.cassandra_operations as db_op
+from datavizapi import AppConfig
 import json
 
-c = Consumer({
-    'bootstrap.servers': 'node0,node1,node2',
-    'group.id': 'mygroup',
-    'auto.offset.reset': 'earliest'})
+config = AppConfig.getConfig()
+kafka_config = config['kafka']
 
-c.subscribe(['^rawData*'])
+c = Consumer({
+    'bootstrap.servers': ",".join(kafka_config['servers']),
+    'group.id': kafka_config['consumer_psd']['group'],
+    'auto.offset.reset': kafka_config['consumer_psd']['offset']})
+
+c.subscribe(kafka_config['consumer_psd']['topic'])
 daq_name_to_id_map = {}
 
 
