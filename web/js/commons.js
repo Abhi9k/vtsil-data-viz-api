@@ -7,7 +7,9 @@
 	    for(sid in sids){
 	        if(sensor_info[sid]['floor']!=='') {
 	            sid_floor_mapping[sid]=sensor_info[sid]['floor'];
-	        }
+	        } else if(sensor_info[sid]['daq_name']!=='') {
+                 sid_floor_mapping[sid]=sensor_info[sid]['daq_name'][0];
+             }
 	    }
 	    mod.sensor_info = sensor_info;
 	    mod.sids = sids;
