@@ -5,7 +5,7 @@ from confluent_kafka import Producer
 import ftp_operations as f_ops
 from datavizapi import AppConfig
 
-config = AppConfig.getConfig()
+config = AppConfig().getConfig()
 
 SENSOR_DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S:%f'
 FILENAME_DATE_FORMAT = config['file_sync']['file_name_format']

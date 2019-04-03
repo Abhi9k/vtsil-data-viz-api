@@ -5,7 +5,7 @@ from cassandra.cqlengine import connection
 from cassandra.cqlengine.models import Model
 from datavizapi import AppConfig
 
-config = AppConfig.getConfig()
+config = AppConfig().getConfig()
 
 cluster = Cluster(
     config['cassandra']['nodes'],

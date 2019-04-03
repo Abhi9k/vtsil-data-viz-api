@@ -4,7 +4,7 @@ import datavizapi.cassandra_operations as db_op
 from datavizapi import AppConfig
 import json
 
-config = AppConfig.getConfig()
+config = AppConfig().getConfig()
 kafka_config = config['kafka']
 
 c = Consumer({

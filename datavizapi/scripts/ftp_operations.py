@@ -3,7 +3,7 @@ from ftplib import FTP
 from datetime import datetime
 from datavizapi import AppConfig
 
-config = AppConfig.getConfig()
+config = AppConfig().getConfig()
 
 ftp_config = config['file_sync']
 
