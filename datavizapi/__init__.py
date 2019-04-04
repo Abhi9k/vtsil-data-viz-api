@@ -6,7 +6,8 @@ env = os.environ['APP_ENV'] or 'dev'
 
 class AppConfig():
     def __init__(self):
-        self.config = yaml.load(open('config.yml', 'r'))
+        self.config = yaml.load(
+            open(os.path.dirname(__file__) + '/config.yml', 'r'))
         if env == 'dev':
             self.config['cassandra']['nodes'] = ['localhost']
             self.config['kafka']['servers'] = ['localhost']
