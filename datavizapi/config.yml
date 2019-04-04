@@ -28,9 +28,9 @@ kafka:
 
 file_sync:
   remote_folder: 'data'
-  temp_file_path: './.lastread'
-  credentials_file_path: './.credentials'
-  destination_dir: './'
+  temp_file_path: '/home/vtsil/vtsil-data-viz-api/datavizapi/scripts/.lastread'
+  credentials_file_path: '/home/vtsil/vtsil-data-viz-api/datavizapi/scripts/.credentials'
+  destination_dir: '/home/vtsil/vtsil-data-viz-api/datavizapi/scripts'
   file_name_format: '%Y-%m-%d_%H_%M_%S'
   ftp_remote_ip: '10.0.1.8'
   ftp_remote_port: '8000'
