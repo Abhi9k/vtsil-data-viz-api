@@ -52,7 +52,7 @@ def putRawDataInQueue(ts, data, sample_rate):
             "f": sample_rate
         }
         p.produce(
-            "raw" + k, value=json.dumps(payload), callback=delivery_report)
+            "raw" + k[:6], value=json.dumps(payload), callback=delivery_report)
     p.poll(1)
 
 
