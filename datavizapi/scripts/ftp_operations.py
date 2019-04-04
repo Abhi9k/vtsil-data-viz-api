@@ -80,8 +80,8 @@ def fetchFiles(ftp, records):
     for r in records:
         while True:
             try:
-                ofile = open(os.path.join(DESTINATION_DIR, r[-1]), 'wb')
-                ftp.retrbinary('RETR ' + r[-1], ofile.write)
+                ofile = open(os.path.join(DESTINATION_DIR, r), 'wb')
+                ftp.retrbinary('RETR ' + r, ofile.write)
                 ofile.close()
                 break
             except Exception, e:

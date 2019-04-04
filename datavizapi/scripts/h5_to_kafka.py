@@ -69,6 +69,7 @@ while True:
     ts = fname[:-3]
 
     ftp = f_ops.connectAndGetFTP()
+    ftp.cwd(config['file_sync']['remote_folder'])
     f_ops.fetchFiles(ftp, [fname])
 
     data = readH5(fname, sample_rate)

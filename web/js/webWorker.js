@@ -1,6 +1,6 @@
 // var v1_api='https://gist.githubusercontent.com/Abhi9k/742d87b18d08dae8431047c0141f25b1/raw/83f48e2fb2ce46cf2f5156af8b6f01aad17f29ae/v1.json';
 // var v2_api='https://gist.githubusercontent.com/Abhi9k/785b7e9c4826a8610d565b16c71a56df/raw/d48f1a2dcd3b12cf6df9e4685190cb9b5feecf09/v2.json';
-var stream_api = 'http://128.173.25.223/api/stream?ns=1';
+var stream_api = 'http://128.173.25.223/api/stream?t=2019-04-03 20:03:40';
 var sensor_info_api = 'http://128.173.25.223/api/sensor_info';
 
 

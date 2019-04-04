@@ -3,7 +3,7 @@ from flask import (
     render_template, make_response)
 import datavizapi.cassandra_operations as db_op
 from datavizapi.utils.time_utils import (
-    editedTime, formatTime, parseTime)
+    editedTime, formatTime, parseTime, currTime)
 import datavizapi.constants as constants
 
 app = Flask(__name__, static_url_path='', static_folder='web/', template_folder='templates')
@@ -15,12 +15,13 @@ def emptyStreamResponse():
     pass
 
 
-def getCookieValue(st, incr=STREAMING_INCR):
-    start_time = '2019-02-19 10:45:32'
+def getCookieValue(st, start_ts, incr=STREAMING_INCR):
+    # start_time = '2019-02-19 10:45:32'
     # start_time = '2019-02-16 20:45:32'
 
     if st is None:
-        st = start_time
+        st = formatTime(start_ts, timezone, constants.RES_DATE_FORMAT)
+
     else:
         st_parsed = parseTime(st, timezone, constants.RES_DATE_FORMAT)
         st_parsed = editedTime(st_parsed, seconds=incr)
@@ -46,7 +47,13 @@ def floorwise():
 
 @app.route('/api/stream', methods=('get',))
 def streaming():
-    from_d_str = getCookieValue(request.cookies.get('st'))
+    start_ts = request.args.get('t')
+    if start_ts:
+        start_ts = parseTime(start_ts, timezone,
+                             constants.RES_DATE_FORMAT)
+    else:
+        start_ts = currTime()
+    from_d_str = getCookieValue(request.cookies.get('st'), start_ts)
 
     from_d = parseTime(from_d_str, timezone, constants.RES_DATE_FORMAT)
     to_d = editedTime(from_d, seconds=STREAMING_INCR)

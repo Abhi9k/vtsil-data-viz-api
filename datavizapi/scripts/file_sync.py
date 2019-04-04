@@ -5,7 +5,7 @@ import ftp_operations as f_ops
 from confluent_kafka import Producer
 from datavizapi import AppConfig
 
-config = AppConfig.getConfig()
+config = AppConfig().getConfig()
 
 p = Producer({'bootstrap.servers': ",".join(config['kafka']['servers'])})
 
