@@ -1,5 +1,6 @@
 import h5py
 import json
+import os
 from confluent_kafka import Consumer
 from confluent_kafka import Producer
 import ftp_operations as f_ops
@@ -70,7 +71,7 @@ while True:
 
     ftp = f_ops.connectAndGetFTP()
     ftp.cwd(config['file_sync']['remote_folder'])
-    f_ops.fetchFiles(ftp, [fname])
+    f_ops.fetchFiles(ftp, [os.path.split(fname)[-1]])
 
     data = readH5(fname, sample_rate)
     putRawDataInQueue(ts.split('/')[-1], data, sample_rate)
