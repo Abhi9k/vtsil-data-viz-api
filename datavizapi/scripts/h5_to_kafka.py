@@ -43,14 +43,14 @@ def readH5(fname, sample_rate):
     return flattened_data
 
 
-def putRawDataInQueue(ts, data):
+def putRawDataInQueue(ts, data, sample_rate):
     for k, v in data:
         payload = {
             "ts": ts,
             "daq_name": k[5:],
-            "d": v.tolist()
+            "d": v.tolist(),
+            "f": sample_rate
         }
-        print(payload['daq_name'] + "," + payload['ts'])
         p.produce(
             "raw" + k, value=json.dumps(payload), callback=delivery_report)
     p.poll(1)
@@ -73,4 +73,4 @@ while True:
     f_ops.fetchFiles(ftp, [fname])
 
     data = readH5(fname, sample_rate)
-    putRawDataInQueue(ts.split('/')[-1], data)
+    putRawDataInQueue(ts.split('/')[-1], data, sample_rate)

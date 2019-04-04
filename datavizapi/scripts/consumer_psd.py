@@ -39,7 +39,7 @@ def delivery_report(err, msg):
 def power_spectrum(input_arr, sampling_f=256.0,
                    scaling='density', window='hann',
                    window_size=256):
-    window = signal.get_window(window, window_size)
+    window = signal.get_window(window, len(input_arr))
     return signal.welch(
         input_arr, fs=sampling_f, scaling=scaling, window=window)
 
@@ -52,7 +52,7 @@ while True:
         print("Consumer error: {}".format(msg.error()))
         continue
     msg = json.loads(msg.value())
-    freqs, power = power_spectrum(msg['d'])
+    freqs, power = power_spectrum(msg['d'], sampling_f=float(msg['f']))
     average_power = integrate.simps(power)
     sid = getDaqId(msg['daq_name'])
     db_op.insertSensorData(sid, msg['ts'], msg['d'])
