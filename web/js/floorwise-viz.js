@@ -85,6 +85,7 @@
 
 	function fetchFloorPSD(floor_num, start_date, end_date) {
 		var api = "http://128.173.25.223/api/floor/psd/"+(floor_num)+"?from="+start_date+"&to="+end_date;
+		// var api = "http://localhost:8000/api/floor/psd/"+(floor_num)+"?from="+start_date+"&to="+end_date;
 
 		d3.select('.loader').classed('hidden', false);
 

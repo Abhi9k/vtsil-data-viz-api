@@ -1,13 +1,16 @@
 from flask import (
-    Flask, jsonify, request,
+    Flask, jsonify, request, after_this_request,
     render_template, make_response)
 import datavizapi.cassandra_operations as db_op
 from datavizapi.utils.time_utils import (
     editedTime, formatTime, parseTime, currTime)
 import datavizapi.constants as constants
+from cStringIO import StringIO as IO
+import gzip
+import functools
 
 app = Flask(__name__, static_url_path='', static_folder='web/', template_folder='templates')
-STREAMING_INCR = 4
+STREAMING_INCR = 10
 timezone = constants.APP_TZ
 
 
@@ -15,13 +18,46 @@ def emptyStreamResponse():
     pass
 
 
+def gzipped(f):
+    """
+    taken from: http://flask.pocoo.org/snippets/122/
+    """
+    @functools.wraps(f)
+    def view_func(*args, **kwargs):
+        @after_this_request
+        def zipper(response):
+            accept_encoding = request.headers.get('Accept-Encoding', '')
+
+            if 'gzip' not in accept_encoding.lower():
+                return response
+
+            response.direct_passthrough = False
+
+            if (response.status_code < 200 or
+                    response.status_code >= 300 or
+                    'Content-Encoding' in response.headers):
+                return response
+            gzip_buffer = IO()
+            gzip_file = gzip.GzipFile(mode='wb',
+                                      fileobj=gzip_buffer)
+            gzip_file.write(response.data)
+            gzip_file.close()
+
+            response.data = gzip_buffer.getvalue()
+            response.headers['Content-Encoding'] = 'gzip'
+            response.headers['Vary'] = 'Accept-Encoding'
+            response.headers['Content-Length'] = len(response.data)
+
+            return response
+
+        return f(*args, **kwargs)
+
+    return view_func
+
+
 def getCookieValue(st, start_ts, incr=STREAMING_INCR):
-    # start_time = '2019-02-19 10:45:32'
-    # start_time = '2019-02-16 20:45:32'
-
-    if st is None:
+    if (st is None) or (parseTime(st, timezone, constants.RES_DATE_FORMAT) < start_ts):
         st = formatTime(start_ts, timezone, constants.RES_DATE_FORMAT)
-
     else:
         st_parsed = parseTime(st, timezone, constants.RES_DATE_FORMAT)
         st_parsed = editedTime(st_parsed, seconds=incr)
@@ -46,14 +82,16 @@ def floorwise():
 
 
 @app.route('/api/stream', methods=('get',))
+@gzipped
 def streaming():
     start_ts = request.args.get('t')
+    incr = int(request.args.get('ns'))
     if start_ts:
         start_ts = parseTime(start_ts, timezone,
                              constants.RES_DATE_FORMAT)
     else:
         start_ts = currTime()
-    from_d_str = getCookieValue(request.cookies.get('st'), start_ts)
+    from_d_str = getCookieValue(request.cookies.get('st'), start_ts, incr=incr)
 
     from_d = parseTime(from_d_str, timezone, constants.RES_DATE_FORMAT)
     to_d = editedTime(from_d, seconds=STREAMING_INCR)
@@ -156,7 +194,8 @@ def getSensorInfo():
             'floor': obj.floor_num,
             'orientation': obj.orientation,
             'sensitivity': obj.sensitivity,
-            'serial': obj.serial_num
+            'serial': obj.serial_num,
+            'name': obj.name
         }
     return jsonify(resp_dict)
 

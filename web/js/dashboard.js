@@ -3,9 +3,9 @@
 	Commons.web_worker.onmessage = function(event) {
 	    var msg=event.data;
 	    if(msg[0]==='data') {
-	    	DashboardTimeseriesViz.initData(msg[1]['v1'][0]);
+	    	DashboardTimeseriesViz.updateData(msg[1]['v1'][0]);
 	    	DashboardFloorViz.initData(msg[1]['v1'][0]);
-	    	DashboardSpectrumViz.initData(msg[1]['v2'])
+	    	DashboardSpectrumViz.initData(msg[1]['v2']);
 	        if(is_first===true){
 	        	DashboardFloorViz.draw();
 	        	DashboardSpectrumViz.draw();
@@ -27,15 +27,25 @@
 
 	mod.update = function() {
 		if(!DashboardInteraction.is_hovered)
-			Commons.web_worker.postMessage(['updateData']);
-	    WINDOW.setTimeout(mod.update, 4000);
+			Commons.web_worker.postMessage(['updateData', mod.start_time, 10]);
+	    WINDOW.setTimeout(mod.update, 10000);
 	}
 
 	return mod;
 
 })(Dashboard || {}, Commons, DashboardInteraction, DashboardFloorViz, DashboardSpectrumViz, DashboardTimeseriesViz, document, window);
 
-window.addEventListener("DOMContentLoaded", function() {
+d3.select('#start_stream')
+	.on('click', function() {
+		Dashboard.start_time = d3.select('#start_time')._groups[0][0].value;
+    	DashboardTimeseriesViz.initData({});
+    	DashboardFloorViz.initData([]);
+    	DashboardSpectrumViz.initData([]);
+    	window.clearTimeout();
+    	Dashboard.update();
+	});
+
+function dashboardInit() {
     DashboardFloorViz.initView();
     DashboardSpectrumViz.initView();
     DashboardTimeseriesViz.initView();
@@ -43,4 +53,15 @@ window.addEventListener("DOMContentLoaded", function() {
     DashboardInteraction.init(Commons.W, Commons.H);
     Commons.web_worker.postMessage(['sensorInfo']);
     Dashboard.update();
+}
+
+window.addEventListener("DOMContentLoaded", function() {
+    // DashboardFloorViz.initView();
+    // DashboardSpectrumViz.initView();
+    // DashboardTimeseriesViz.initView();
+    // Commons.updateScreenDimensions(window.innerHeight, window.innerWidth);
+    // DashboardInteraction.init(Commons.W, Commons.H);
+    // Commons.web_worker.postMessage(['sensorInfo']);
+    // Dashboard.update();
+    dashboardInit();
 });

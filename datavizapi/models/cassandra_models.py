@@ -27,6 +27,7 @@ class SensorInfo(BaseModel):
     __table_name__ = 'sensor_info'
     id          = columns.Integer(primary_key=True, partition_key=True)
     floor_num   = columns.Text()
+    name        = columns.Text()
     orientation = columns.Text()
     bias_level  = columns.Text()
     sensitivity = columns.Text()

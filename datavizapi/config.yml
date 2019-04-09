@@ -16,7 +16,11 @@ kafka:
     group: 'psd'
     offset: 'earliest'
     topic:
-      - '^rawData*'
+      - 'rawData_1'
+      - 'rawData_2'
+      - 'rawData_3'
+      - 'rawData_4'
+      - 'rawData_5'
   producer_h5:
     retries: 2
     max_in_flight: 1
@@ -26,6 +30,11 @@ kafka:
     offset: 'earliest'
     topic: incomingFiles
 
+  # consumer_raw:
+  #   group: 'raw'
+  #   offset: 'earliest'
+  #   topic: 
+
 file_sync:
   remote_folder: 'data'
   temp_file_path: '/home/vtsil/vtsil-data-viz-api/datavizapi/scripts/.lastread'
@@ -34,4 +43,6 @@ file_sync:
   file_name_format: '%Y-%m-%d_%H_%M_%S'
   ftp_remote_ip: '10.0.1.8'
   ftp_remote_port: '8000'
+
+footstep_sensor_names: ['3C-19', '3C-20', '3C-21', '3C-22', '3C-23', '3C-24', '3C-25', '3C-26', '3C-27', '3C-28', '3C-29', '3C-30']
 ...

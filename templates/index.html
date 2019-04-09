@@ -4,9 +4,8 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<title>Goodwin Hall Visualization</title>
-	<!-- <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet"> -->
-
 	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
 	<link rel="stylesheet" type="text/css" href="css/button-style.css"/>
@@ -24,9 +23,6 @@
 		<p></p>
 		<div><button class="pure-material-button-contained" id="export-yes">Export</button><button class="pure-material-button-contained" id="export-no">Not Yet</button></div>
 	</div>
-	<!-- <section class="header"> -->
-		<!-- <div class="title"><h2>Life of Goodwin Hall <span class="selection-buttons"><button id="reset-selection" class="pure-material-button-contained">Reset Selection</button><button id="export-data" class="pure-material-button-contained">Export</button></span></h2>
-		</div> -->
 
 	<div class="navbar">
 		<div class="nav-left">
@@ -38,34 +34,21 @@
 			</div>
 		</div>
 		<div class="nav-right">
+			<div class="time-container">
+				<input id="start_time" type="text" name="start_time" style="width: 150px;">
+				<input id="start_stream" type="button" name="start_stream" style="width: 80px" value="Stream">
+			</div>
 			<div id="data-export" onclick="ondataexportclick()" title="Export data">
 				<p><a href="javascript:void(0);"><i class="fa fa-file-export"></i></a></p>
 			</div>
 			<div id="undo-selection" title="Undo last selection">
 				<p><a href="javascript:void(0);" onclick="onundoselectionclick()"><i class="fa fa-undo"></i></a></p>
 			</div>
-			<div id="viz-type" onchange="onviztypechanged()" title="Change visualization">
-				<div class="nav-dropdown">
-					<div class="nav-dropdown-body">
-						<select id="select-viz-type">
-							<option value="live">Live</option>
-							<option value="single-sensor">Individual</option>
-							<!-- <option value="compare-sensor">Compare</option> -->
-						</select>
-					</div>
-				</div>
-			</div>
-			<div id="refresh-interval">
-				<p><a href="javascript:void(0);" onclick="onrefreshintervalclick()"><i class="fa fa-redo"></i> Every 4 sec</a></p>
-			</div>
 		</div>
 	</div>
 
-
-	<!-- </section> -->
 	<section class="content container">
 		<div id="v1">
-			<!-- <div class="v1 highlight hidden"></div> -->
 			<div class="floor first"></div>
 			<div class="floor second"></div>
 			<div class="floor third"></div>
@@ -82,7 +65,6 @@
 		</div>
 		<div id="v3-parent">
 			<div id="v3"></div>
-			<!-- <div class="v3 highlight hidden"></div> -->
 			<div class="zoom-view">
 				<div class="zoom-in"><span><i class="icon-zoom-in"></i></span></div>
 				<div class="zoom-out"><span><i class="icon-zoom-out"></i></span></div>

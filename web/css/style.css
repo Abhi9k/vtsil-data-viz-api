@@ -235,10 +235,19 @@ body {
     margin-left: 20px;
 }
 
-#data-export, #undo-selection {
+#data-export, #undo-selection{
     width: 40px;
     text-align: center;
 }
+
+.time-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 250px;
+}
+
 
 #data-export:hover, #undo-selection:hover, #viz-type:hover, #refresh-interval:hover {
     /*opacity: 0.5;*/

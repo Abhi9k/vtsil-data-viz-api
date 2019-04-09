@@ -38,24 +38,6 @@
 			<div id="data-export" onclick="ondataexportclick()" title="Export data">
 				<p><a href="javascript:void(0);"><i class="fa fa-file-export"></i></a></p>
 			</div>
-			<div id="undo-selection" title="Undo last selection">
-				<p><a href="javascript:void(0);" onclick="onundoselectionclick()"><i class="fa fa-undo"></i></a></p>
-			</div>
-			<div id="viz-type" onchange="onviztypechanged()" title="Change visualization">
-				<div class="nav-dropdown">
-					<div class="nav-dropdown-body">
-						<select id="select-viz-type">
-							<option value="single-sensor">Individual</option>
-							<option value="live">Live</option>
-							
-							<!-- <option value="compare-sensor">Compare</option> -->
-						</select>
-					</div>
-				</div>
-			</div>
-			<div id="refresh-interval">
-				<p><a href="javascript:void(0);" onclick="onrefreshintervalclick()"><i class="fa fa-redo"></i> Every 4 sec</a></p>
-			</div>
 		</div>
 	</div>
 
@@ -87,7 +69,6 @@
 			</div>
 		</div>
 		<div id="psd"></div>
-		<!-- <div id="raw"></div> -->
 	</section>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-fetch.v1.min.js"></script>

@@ -37,8 +37,12 @@
 		svg.append('g').attr('class', 'axis-label').append('text');
 	};
 
-
 	mod.initData = function(data) {
+		viz_data = data;
+	}
+
+
+	mod.updateData = function(data) {
 		var keys = Object.keys(data.value);
 		if((min_ts === undefined) || (new Date(data.ts) < min_ts))
 			min_ts = new Date(data.ts);
