@@ -7,20 +7,30 @@ from datavizapi import AppConfig
 
 config = AppConfig().getConfig()
 
-cluster = Cluster(
-    config['cassandra']['nodes'],
-    load_balancing_policy=RoundRobinPolicy(),
-    port=config['cassandra']['port'])
+# cluster = Cluster(
+#     config['cassandra']['nodes'],
+#     load_balancing_policy=RoundRobinPolicy(),
+#     port=config['cassandra']['port'])
 
-session = cluster.connect(config['cassandra']['keyspace'])
-session.default_fetch_size = None
-connection.register_connection('VTSIL Cluster', session=session)
+# session = cluster.connect(config['cassandra']['keyspace'])
+# session.default_fetch_size = None
+# connection.register_connection('VTSIL Cluster', session=session)
 
 
 class BaseModel(Model):
     __abstract__ = True
     __keyspace__ = config['cassandra']['keyspace']
     __connection__ = 'VTSIL Cluster'
+
+    def __init__(self):
+        cluster = Cluster(
+            config['cassandra']['nodes'],
+            load_balancing_policy=RoundRobinPolicy(),
+            port=config['cassandra']['port'])
+
+        session = cluster.connect(config['cassandra']['keyspace'])
+        session.default_fetch_size = None
+        connection.register_connection('VTSIL Cluster', session=session)
 
 
 class SensorInfo(BaseModel):

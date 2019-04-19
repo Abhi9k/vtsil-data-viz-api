@@ -6,11 +6,14 @@ from cassandra import ConsistencyLevel
 import utils.time_utils as time_utils
 from utils.commons import splitRangeInHours
 import constants as constants
+from collections import namedtuple
 
 timezone = constants.APP_TZ
 
 SENSOR_DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S:%f'
 FILENAME_DATE_FORMAT = '%Y-%m-%d_%H_%M_%S'
+
+PSDResponse = namedtuple('PSD', ['ts', 'total_power', 'power_dist'])
 
 
 def getSensorInfoAll():
@@ -116,6 +119,43 @@ def getSensorsByFloor(floor_num):
     return response
 
 
+def fetchPSDForSensor(
+        date, sid, from_ts, to_ts, defer_fields, descending=True):
+    query = PSDByHour.objects.consistency(ConsistencyLevel.LOCAL_ONE)
+    query = query.filter(id=sid)
+    query = query.filter(date=date)
+    query = query.filter(ts__gte=from_ts)
+    query = query.filter(ts__lte=to_ts)
+    query = query.order_by('-ts')
+    if not descending:
+        query = query.order_by('ts')
+    query = query.defer(defer_fields)
+    response = query.all()
+
+    return list(response)
+
+
+def fetchPSDImproved(
+        from_ts, to_ts, sids=None, get_power_dist=True,
+        get_avg_power=True, descending=True):
+    if sids is None:
+        sids = daq_name_to_sid_map.values()
+    dates = splitRangeInHours(from_ts, to_ts)
+    defer_fields = ['date']
+    if get_power_dist is False:
+        defer_fields.append('power_dist')
+    if get_avg_power is False:
+        defer_fields.append('total_power')
+
+    response = {}
+    for sid in sids:
+        response[sid] = []
+        for date in dates:
+            response[sid] += fetchPSDForSensor(
+                date, sid, from_ts, to_ts, defer_fields, descending=descending)
+    return response
+
+
 def fetchPSD(from_ts, to_ts, sids=None, get_power_dist=True, get_avg_power=True, descending=True):
     if sids is None:
         sids = daq_name_to_sid_map.values()
@@ -148,9 +188,23 @@ def fetchPSD(from_ts, to_ts, sids=None, get_power_dist=True, get_avg_power=True,
 def fetchLatestPSD(from_d, sids=None, get_power_dist=True, get_avg_power=True, to_d=None):
     if to_d is None:
         to_d = time_utils.editedTime(from_d, seconds=1)
-    return fetchPSD(
+    return fetchPSDImproved(
         from_d, to_d, sids=sids, get_power_dist=get_power_dist,
         get_avg_power=get_avg_power, descending=True)
+
+
+def fetchSensorDataById(sid, date, from_ts, to_ts, defer_fields, descending=True):
+    query = SensorDataByHour.objects.consistency(ConsistencyLevel.LOCAL_ONE)
+    query = query.filter(id=sid)
+    query = query.filter(date=date)
+    query = query.filter(ts__gte=from_ts)
+    query = query.filter(ts__lte=to_ts)
+    query = query.defer(defer_fields)
+    query = query.order_by('-ts')
+    if not descending:
+        query = query.order_by('ts')
+
+    return list(query.all())
 
 
 def fetchSensorData(from_ts, to_ts, sids=None, descending=True):
@@ -159,17 +213,10 @@ def fetchSensorData(from_ts, to_ts, sids=None, descending=True):
     dates = splitRangeInHours(from_ts, to_ts)
     defer_fields = ['date']
 
-    query = SensorDataByHour.objects.consistency(ConsistencyLevel.LOCAL_ONE)
-    query = query.filter(id__in=sids)
-    query = query.filter(date__in=dates)
-    query = query.filter(ts__gte=from_ts)
-    query = query.filter(ts__lte=to_ts)
-    query = query.defer(defer_fields)
-    query = query.order_by('-ts')
-    if not descending:
-        query = query.order_by('ts')
-
-    response = query.all()
-    if len(response) != 0:
-        response = formatSensorResponse(response)
+    response = {}
+    for sid in sids:
+        response[sid] = []
+        for date in dates:
+            response[sid] += fetchSensorDataById(
+                sid, date, from_ts, to_ts, defer_fields, descending)
     return response

@@ -9,8 +9,9 @@
 	function getPowerValue(sid, idx) {
 		if(viz_data === undefined)
 			return Commons.MIN_POWER;
-		if(sid in viz_data)
+		if(viz_data[+sid] && viz_data[+sid].length>0) {
 			return viz_data[+sid][idx][1];
+		}
 		else
 			return Commons.MIN_POWER;
 	}

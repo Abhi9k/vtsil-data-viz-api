@@ -105,20 +105,22 @@ def streaming():
 
     value = {}
     for sid, val in results.items():
-        value[str(sid)] = val[0]['total_power']
+        if len(val) > 0:
+            value[str(sid)] = val[0].total_power
     response['v1'].append(
-        {'ts': results[sid_list[0]][0]['ts'],
+        {'ts': results[sid_list[0]][0].ts,
          'value': value})
 
     # for v2
     for sid, v in results.items():
-        temp = {"id": str(sid), "data": []}
-        num_freq = len(v[0]['power_dist'])
-        si = 0
-        while si < num_freq:
-            temp['data'].append({"f": float(si), "p": v[0]['power_dist'][si]})
-            si += 1
-        response['v2'].append(temp)
+        if len(v) > 0:
+            temp = {"id": str(sid), "data": []}
+            num_freq = len(v[0]['power_dist'])
+            si = 0
+            while si < num_freq:
+                temp['data'].append({"f": float(si), "p": v[0]['power_dist'][si]})
+                si += 1
+            response['v2'].append(temp)
 
     resp = make_response(jsonify(response))
     resp.set_cookie('st', from_d_str)
@@ -135,33 +137,17 @@ def getSensorPSD(sensor_id):
 
     from_ts = parseTime(ts, timezone,
                         constants.RES_DATE_FORMAT)
-    results = db_op.fetchPSD(from_ts, from_ts, sids=[int(sensor_id)],
-                             get_avg_power=False, descending=False)
+    results = db_op.fetchPSDImproved(
+        from_ts, from_ts, sids=[int(sensor_id)],
+        get_avg_power=False, descending=False)
     response = {'data': []}
-    for idx, data in enumerate(results[int(sensor_id)][0]['power_dist']):
+    for idx, data in enumerate(results[int(sensor_id)][0].power_dist):
         response['data'].append([idx, data])
     return make_response(jsonify(response))
 
 
-@app.route('/api/stream/psd/<floor_num>', methods=('get',))
-def streamFloorPSD(floor_num):
-    ts = request.args.get('d')
-    if ts is None:
-        return make_response(
-            jsonify({'msg': 'error', 'reason': 'invalid/empty timestamp'}))
-    from_ts = parseTime(ts, timezone,
-                        constants.RES_DATE_FORMAT)
-    sensors = db_op.getSensorsByFloor(floor_num)
-    sids = map(lambda x: x['sid'], sensors)
-    results = db_op.fetchLatestPSD(from_ts, sids=sids, get_power_dist=False)
-    sids = results.keys()
-    response = []
-    for sid in sids:
-        response.append([int(sid), results[sid][0]['total_power']])
-    return make_response(jsonify(response))
-
-
 @app.route('/api/floor/psd/<floor_num>', methods=('get',))
+@gzipped
 def floorPSD(floor_num):
     ts_from = request.args.get('from')
     ts_to = request.args.get('to')
@@ -174,13 +160,18 @@ def floorPSD(floor_num):
                       constants.RES_DATE_FORMAT)
     sensors = db_op.getSensorsByFloor(floor_num)
     sids = map(lambda x: x['sid'], sensors)
-    results = db_op.fetchPSD(ts_from, ts_to, sids=sids, get_power_dist=False, descending=False)
+    results = db_op.fetchPSDImproved(
+        ts_from, ts_to, sids=sids, get_power_dist=False,
+        descending=False)
     sids = results.keys()
     response = {}
     for sid in sids:
         response[sid] = []
         for v in results[sid]:
-            response[sid].append([v['ts'], v['total_power']])
+            response[sid].append(
+                [formatTime(v.ts, timezone, constants.RES_DATE_FORMAT),
+                 v.total_power])
+
     return make_response(jsonify(response))
 
 
@@ -213,15 +204,13 @@ def getExplorationForSensor(sensor_name):
         return jsonify({'msg': 'error'})
 
     # raw = db_op.fetchSensorData(from_time, to_time, sids=[sid], descending=False)
-    psd = db_op.fetchPSD(from_time, to_time, sids=[sid], get_power_dist=False, descending=False)
+    psd = db_op.fetchPSDImproved(
+        from_time, to_time, sids=[sid], get_power_dist=False, descending=False)
 
     response = {'raw': [], 'psd': []}
 
-    # for data in raw[sid]:
-    #     sample_freq = len(data['data'])
-    #     response['raw'].append([data['ts'], sum(data['data']) / sample_freq])
     for data in psd[sid]:
-        response['psd'].append([data['ts'], data['total_power']])
+        response['psd'].append([data.ts, data.total_power])
 
     return make_response(jsonify(response))
 
