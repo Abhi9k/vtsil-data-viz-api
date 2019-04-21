@@ -19,7 +19,7 @@ daq_name_to_id_map = {}
 def getDaqId(daq_name):
     if daq_name in daq_name_to_id_map:
         return daq_name_to_id_map[daq_name]
-    sensor_obj = db_op.sensorObjects
+    sensor_obj = db_op.getSensorInfoAll()
     for i in range(len(sensor_obj)):
         if sensor_obj[i].daq_name == daq_name:
             daq_name_to_id_map[daq_name] = sensor_obj[i].id

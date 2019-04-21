@@ -6,18 +6,27 @@ from cassandra import ConsistencyLevel
 import utils.time_utils as time_utils
 from utils.commons import splitRangeInHours
 import constants as constants
-from collections import namedtuple
+# from collections import namedtuple
 
 timezone = constants.APP_TZ
 
 SENSOR_DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S:%f'
 FILENAME_DATE_FORMAT = '%Y-%m-%d_%H_%M_%S'
 
-PSDResponse = namedtuple('PSD', ['ts', 'total_power', 'power_dist'])
+# PSDResponse = namedtuple('PSD', ['ts', 'total_power', 'power_dist'])
 
 
 def getSensorInfoAll():
     return SensorInfo.objects.all()
+
+
+def sensorNameToIdMap():
+    sensorObjects = getSensorInfoAll()
+    daq_name_to_sid_map = {}
+
+    for obj in sensorObjects:
+        daq_name_to_sid_map[obj.daq_name] = obj.id
+    return daq_name_to_sid_map
 
 
 def formatPSDResponse(response):
@@ -60,13 +69,6 @@ def formatSensorResponse(response):
     return results
 
 
-sensorObjects = getSensorInfoAll()
-daq_name_to_sid_map = {}
-
-for obj in sensorObjects:
-    daq_name_to_sid_map[obj.daq_name] = obj.id
-
-
 def insertSensorInfo(fname):
     data = None
     with open(fname, 'r') as f:
@@ -105,9 +107,7 @@ def insertSensorData(sid, ts, data):
 
 
 def getSensorsByFloor(floor_num):
-    sensor_objects = sensorObjects
-    if sensorObjects is None:
-        sensor_objects = getSensorInfoAll()
+    sensor_objects = getSensorInfoAll()
     response = []
     for obj in sensor_objects:
         if obj.floor_num == str(floor_num):
@@ -139,7 +139,7 @@ def fetchPSDImproved(
         from_ts, to_ts, sids=None, get_power_dist=True,
         get_avg_power=True, descending=True):
     if sids is None:
-        sids = daq_name_to_sid_map.values()
+        sids = sensorNameToIdMap().values()
     dates = splitRangeInHours(from_ts, to_ts)
     defer_fields = ['date']
     if get_power_dist is False:
@@ -158,7 +158,8 @@ def fetchPSDImproved(
 
 def fetchPSD(from_ts, to_ts, sids=None, get_power_dist=True, get_avg_power=True, descending=True):
     if sids is None:
-        sids = daq_name_to_sid_map.values()
+        sids = sensorNameToIdMap().values()
+
     dates = splitRangeInHours(from_ts, to_ts)
     defer_fields = ['date']
     if get_power_dist is False:
@@ -209,7 +210,7 @@ def fetchSensorDataById(sid, date, from_ts, to_ts, defer_fields, descending=True
 
 def fetchSensorData(from_ts, to_ts, sids=None, descending=True):
     if sids is None:
-        sids = daq_name_to_sid_map.values()
+        sids = sensorNameToIdMap().values()
     dates = splitRangeInHours(from_ts, to_ts)
     defer_fields = ['date']
 

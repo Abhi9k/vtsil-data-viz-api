@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS sensor_info (
 	sensitivity text,
 	serial_num text,
 	daq_name text,
+	name text,
 	x_pos text,
 	y_pos text,
 	z_pos text,

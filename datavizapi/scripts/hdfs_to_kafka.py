@@ -3,7 +3,6 @@ import json
 import os
 from confluent_kafka import Consumer
 from confluent_kafka import Producer
-import ftp_operations as f_ops
 import datavizapi.cassandra_operations as db_op
 from datavizapi import AppConfig
 
@@ -31,10 +30,10 @@ p = Producer({
     'linger.ms': config['kafka']['producer_h5']['linger_ms']})
 c = Consumer({
     'bootstrap.servers': ",".join(config['kafka']['servers']),
-    'group.id': config['kafka']['consumer_h5']['group'],
-    'auto.offset.reset': config['kafka']['consumer_h5']['offset']})
+    'group.id': config['kafka']['consumer_hdfs']['group'],
+    'auto.offset.reset': config['kafka']['consumer_hdfs']['offset']})
 
-c.subscribe([config['kafka']['consumer_h5']['topic']])
+c.subscribe([config['kafka']['consumer_hdfs']['topic']])
 
 
 def delivery_report(err, msg):
@@ -68,7 +67,7 @@ def putRawDataInQueue(ts, data, sample_rate):
         # p.produce(
         #     "raw" + k[:6], value=json.dumps(payload), callback=delivery_report)
         p.produce(
-            "rawData_" + sid, value=json.dumps(payload), callback=delivery_report)
+            "rawData_" + str(sid), value=json.dumps(payload), callback=delivery_report)
     p.poll(1)
 
 
@@ -83,10 +82,6 @@ while True:
     fname = msg['file_name']
     sample_rate = msg['sample_rate']
     ts = fname[:-3]
-
-    ftp = f_ops.connectAndGetFTP()
-    ftp.cwd(config['file_sync']['remote_folder'])
-    f_ops.fetchFiles(ftp, [os.path.split(fname)[-1]])
-
+    os.system('hdfs dfs -copyToLocal /user/vtsil/perftest/{0} ./'.format(fname))
     data = readH5(fname, sample_rate)
     putRawDataInQueue(ts.split('/')[-1], data, sample_rate)

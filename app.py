@@ -177,7 +177,7 @@ def floorPSD(floor_num):
 
 @app.route('/api/sensor_info', methods=('get',))
 def getSensorInfo():
-    sensor_objs = db_op.sensorObjects
+    sensor_objs = db_op.getSensorInfoAll()
     resp_dict = {}
     for obj in sensor_objs:
         resp_dict[str(obj.id)] = {
@@ -196,7 +196,7 @@ def getExplorationForSensor(sensor_name):
     from_time_str = request.args.get('from')
     to_time_str = request.args.get('to')
 
-    sid = db_op.daq_name_to_sid_map[sensor_name]
+    sid = db_op.sensorNameToIdMap()[sensor_name]
     from_time = parseTime(from_time_str, timezone, constants.RES_DATE_FORMAT)
     to_time = parseTime(to_time_str, timezone, constants.RES_DATE_FORMAT)
 

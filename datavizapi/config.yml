@@ -29,11 +29,13 @@ kafka:
     group: 'filesync'
     offset: 'earliest'
     topic: incomingFiles
-
-  # consumer_raw:
-  #   group: 'raw'
-  #   offset: 'earliest'
-  #   topic: 
+  producer_hdfs:
+    retries: 2
+    max_in_flight: 1
+  consumer_hdfs:
+    group: 'hdfs'
+    offset: 'earliest'
+    topic: 'putHdfs'
 
 file_sync:
   remote_folder: 'data'

@@ -9,6 +9,10 @@ def roundToHour(d):
     return d.replace(minute=0, second=0, microsecond=0)
 
 
+def roundToMinute(d):
+    return d.replace(second=0, microsecond=0)
+
+
 def currTime():
     return pytz.utc.localize(datetime.now())
 
