@@ -57,18 +57,19 @@ def readH5(fname, sample_rate):
 
 def putRawDataInQueue(ts, data, sample_rate):
     for k, v in data:
+        sid = daqNameIdMap()[k[5:]]
+        data = v.tolist()
         payload = {
             "ts": ts,
             "daq_name": k[5:],
-            "d": v.tolist(),
-            "f": sample_rate
+            "d": data,
+            "f": sample_rate,
+            "sid": sid
         }
-        sid = daqNameIdMap()[k[5:]]
-        # p.produce(
-        #     "raw" + k[:6], value=json.dumps(payload), callback=delivery_report)
         p.produce(
-            "rawData_" + str(sid), value=json.dumps(payload), callback=delivery_report)
-    p.poll(1)
+            "rawData_" + str(sid),
+            value=json.dumps(payload))
+        p.poll(1)
 
 
 while True:
@@ -85,3 +86,4 @@ while True:
     os.system('hdfs dfs -copyToLocal /user/vtsil/perftest/{0} ./'.format(fname))
     data = readH5(fname, sample_rate)
     putRawDataInQueue(ts.split('/')[-1], data, sample_rate)
+    os.system("rm {0}".format(fname))
