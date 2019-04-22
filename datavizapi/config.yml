@@ -15,12 +15,7 @@ kafka:
   consumer_psd:
     group: 'psd'
     offset: 'earliest'
-    topic:
-      - 'rawData_1'
-      - 'rawData_2'
-      - 'rawData_3'
-      - 'rawData_4'
-      - 'rawData_5'
+    topic: '^rawData_.*'
   producer_h5:
     retries: 2
     max_in_flight: 1
@@ -36,6 +31,10 @@ kafka:
     group: 'hdfs'
     offset: 'earliest'
     topic: 'putHdfs'
+  consumer_raw:
+    group: 'raw'
+    offset: 'earliest'
+    topic: 'rawData'
 
 file_sync:
   remote_folder: 'data'

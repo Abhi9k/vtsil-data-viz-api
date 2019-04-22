@@ -19,6 +19,7 @@ def getSensorIds():
     sids = []
     for obj in sensor_info_objects:
         sids.append(str(obj.id))
+    return sids
 
 
 def startConsumer(topics):
@@ -41,3 +42,4 @@ if __name__ == '__main__':
     sids = getSensorIds()
     sids = sids[start:end]
     topics = map(lambda x: 'rawData_' + x, sids)
+    startConsumer(topics)
