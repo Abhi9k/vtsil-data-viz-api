@@ -39,4 +39,5 @@ if __name__ == '__main__':
     start = int(sys.argv[1])
     end = int(sys.argv[2])
     sids = getSensorIds()
+    sids = sids[start:end]
     topics = map(lambda x: 'rawData_' + x, sids)
