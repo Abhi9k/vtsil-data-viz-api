@@ -43,7 +43,7 @@ def putNewfilenames(data, sample_rate):
         }
         p.produce(
             config['kafka']['consumer_h5']['topic'],
-            json.dumps(payload), callback=delivery_report)
+            json.dumps(payload), partition=0, callback=delivery_report)
     p.poll(1)
 
 
