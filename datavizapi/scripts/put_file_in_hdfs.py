@@ -34,6 +34,7 @@ while True:
         'file_name': os.path.split(fname)[-1],
         'sample_rate': sample_rate
     }
+    os.system("rm {0}".format(fname))
     p.produce(
         config['kafka']['consumer_hdfs']['topic'],
         json.dumps(payload))
