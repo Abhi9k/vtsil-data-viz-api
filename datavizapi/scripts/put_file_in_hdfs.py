@@ -1,6 +1,7 @@
 import os
 import json
 from confluent_kafka import Consumer, Producer
+import ftp_operations as f_ops
 from datavizapi import AppConfig
 
 config = AppConfig().getConfig()
@@ -18,6 +19,13 @@ c = Consumer({
 
 c.subscribe([config['kafka']['consumer_h5']['topic']])
 
+
+def fetchFileFTP(fname):
+    ftp = f_ops.connectAndGetFTP()
+    ftp.cwd(config['file_sync']['remote_folder'])
+    f_ops.fetchFiles(ftp, [fname])
+
+
 while True:
     msg = c.poll(1)
     if msg is None:
@@ -28,10 +36,13 @@ while True:
     msg = json.loads(msg.value())
     fname = msg['file_name']
     sample_rate = msg['sample_rate']
-    os.system("hdfs dfs -copyFromLocal {0} /user/vtsil/perftest/".format(fname))
+
+    fetchFileFTP(fname)
+
+    os.system("hdfs dfs -copyFromLocal {0} /user/vtsil/testfiles/".format(fname))
 
     payload = {
-        'file_name': os.path.split(fname)[-1],
+        'file_name': fname,
         'sample_rate': sample_rate
     }
     os.system("rm {0}".format(fname))
@@ -39,3 +50,20 @@ while True:
         config['kafka']['consumer_hdfs']['topic'],
         json.dumps(payload))
     p.poll(1)
+
+# import json, os, time
+# from confluent_kafka import Producer
+
+# fnames = os.listdir('test_input')
+
+# fnames = sorted(fnames)
+# fnames = fnames[1]
+# p = Producer({'bootstrap.servers': 'node0,node1,node2'})
+
+# payload = {'sample_rate': 1024, 'file_name': ''}
+
+# for fname in fnames:
+#     payload['file_name'] = fname
+#     p.produce('putHdfs', json.dumps(payload))
+#     p.poll(1)
+#     time.sleep(0.3)

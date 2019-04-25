@@ -12,14 +12,14 @@ p = Producer({'bootstrap.servers': ",".join(config['kafka']['servers'])})
 SCRIPT_BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
-def delivery_report(err, msg):
-    """ Called once for each message produced to indicate delivery result.
-        Triggered by poll() or flush(). """
-    if err is not None:
-        print('Message delivery failed: {}'.format(err))
-    else:
-        print('Message delivered to {} [{}]'.format(
-            msg.topic(), msg.partition()))
+# def delivery_report(err, msg):
+#     """ Called once for each message produced to indicate delivery result.
+#         Triggered by poll() or flush(). """
+#     if err is not None:
+#         print('Message delivery failed: {}'.format(err))
+#     else:
+#         print('Message delivered to {} [{}]'.format(
+#             msg.topic(), msg.partition()))
 
 
 def parseSampleRateFromConfig(fname):
@@ -43,7 +43,7 @@ def putNewfilenames(data, sample_rate):
         }
         p.produce(
             config['kafka']['consumer_h5']['topic'],
-            json.dumps(payload), partition=0, callback=delivery_report)
+            json.dumps(payload), partition=0)
     p.poll(1)
 
 
