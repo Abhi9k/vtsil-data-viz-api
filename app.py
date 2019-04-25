@@ -8,6 +8,7 @@ import datavizapi.constants as constants
 from cStringIO import StringIO as IO
 import gzip
 import functools
+from collections import defaultdict
 
 app = Flask(__name__, static_url_path='', static_folder='web/', template_folder='templates')
 STREAMING_INCR = 10
@@ -137,9 +138,8 @@ def getSensorPSD(sensor_id):
 
     from_ts = parseTime(ts, timezone,
                         constants.RES_DATE_FORMAT)
-    results = db_op.fetchPSDImproved(
-        from_ts, from_ts, sids=[int(sensor_id)],
-        get_avg_power=False, descending=False)
+    results = db_op.fetchPSD(
+        from_ts, from_ts, get_avg_power=False, descending=False)
     response = {'data': []}
     for idx, data in enumerate(results[int(sensor_id)][0].power_dist):
         response['data'].append([idx, data])
@@ -160,13 +160,12 @@ def floorPSD(floor_num):
                       constants.RES_DATE_FORMAT)
     sensors = db_op.getSensorsByFloor(floor_num)
     sids = map(lambda x: x['sid'], sensors)
-    results = db_op.fetchPSDImproved(
-        ts_from, ts_to, sids=sids, get_power_dist=False,
+    results = db_op.fetchPSD(
+        ts_from, ts_to, get_power_dist=False,
         descending=False)
-    sids = results.keys()
-    response = {}
+    sids = [sid for sid in results.keys() if sid in sids]
+    response = defaultdict(list)
     for sid in sids:
-        response[sid] = []
         for v in results[sid]:
             response[sid].append(
                 [formatTime(v.ts, timezone, constants.RES_DATE_FORMAT),
@@ -203,9 +202,8 @@ def getExplorationForSensor(sensor_name):
     if((sid is None) or (from_time > to_time)):
         return jsonify({'msg': 'error'})
 
-    # raw = db_op.fetchSensorData(from_time, to_time, sids=[sid], descending=False)
-    psd = db_op.fetchPSDImproved(
-        from_time, to_time, sids=[sid], get_power_dist=False, descending=False)
+    psd = db_op.fetchPSD(
+        from_time, to_time, get_power_dist=False, descending=False)
 
     response = {'raw': [], 'psd': []}
 

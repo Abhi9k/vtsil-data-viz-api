@@ -40,16 +40,16 @@ class SensorInfo(BaseModel):
 
 class SensorDataByHour(BaseModel):
     __table_name__ = 'sensor_data_by_hour'
-    id          = columns.Integer(primary_key=True, partition_key=True)
     date        = columns.DateTime(primary_key=True, partition_key=True)
     ts          = columns.DateTime(primary_key=True, partition_key=False, clustering_order='DESC')
+    id          = columns.Integer(primary_key=True, partition_key=False)
     data        = columns.List(columns.Float())
 
 
 class PSDByHour(BaseModel):
     __table_name__ = 'psd_by_hour'
-    id          = columns.Integer(primary_key=True)
     date        = columns.DateTime(primary_key=True, partition_key=True)
     ts          = columns.DateTime(primary_key=True, partition_key=False, clustering_order='DESC')
+    id          = columns.Integer(primary_key=True, partition_key=False)
     total_power = columns.Float()
     power_dist  = columns.List(columns.Float())

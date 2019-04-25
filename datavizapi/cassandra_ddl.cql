@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS sensor_data_by_hour (
 	date timestamp,
 	ts timestamp,
 	data FROZEN <LIST<float>>,
-	PRIMARY KEY ((id, date), ts)
+	PRIMARY KEY (date, ts, id)
 ) WITH CLUSTERING ORDER BY (ts DESC) AND
  	   caching = { 
 		 'keys' : 'NONE', 
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS psd_by_hour (
 	ts timestamp,
 	total_power float,
 	power_dist FROZEN <LIST<float>>,
-	PRIMARY KEY ((id, date), ts)
+	PRIMARY KEY (date, ts, id)
 )
  WITH CLUSTERING ORDER BY (ts DESC) AND
 	caching = { 
