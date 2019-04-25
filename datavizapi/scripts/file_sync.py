@@ -35,7 +35,7 @@ def parseSampleRateFromConfig(fname):
 def putNewfilenames(data, sample_rate):
     if len(data) == 0:
         return
-    data = map(lambda x: SCRIPT_BASE_PATH + "/" + x[-1], data)
+    data = map(lambda x: x[-1], data)
     for d in data:
         payload = {
             "sample_rate": sample_rate,

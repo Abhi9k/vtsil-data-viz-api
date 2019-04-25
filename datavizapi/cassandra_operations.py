@@ -90,11 +90,19 @@ def insertSensorInfo(fname):
 
 
 def insertPSD(sid, total_power, power_dist, ts):
-    ts = time_utils.parseTime(ts, timezone, FILENAME_DATE_FORMAT)
     date = time_utils.roundToHour(ts)
     PSDByHour.consistency(ConsistencyLevel.LOCAL_ONE).create(
         id=sid, date=date, ts=ts,
         total_power=total_power, power_dist=power_dist)
+
+
+def insertPSDBatch(ts, data):
+    date = time_utils.roundToHour(ts)
+    with BatchQuery() as b:
+        for sid, ts, total_power, power_dist in data:
+            PSDByHour.consistency(ConsistencyLevel.LOCAL_ONE).batch(b).create(
+                id=sid, date=date, ts=ts,
+                total_power=total_power, power_dist=power_dist)
 
 
 def insertSensorData(sid, ts, data):

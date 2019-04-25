@@ -7,6 +7,7 @@ import datavizapi.cassandra_operations as db_op
 from datavizapi import AppConfig
 
 config = AppConfig().getConfig()
+SCRIPT_BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 daq_name_id_map = {}
 
 
@@ -47,7 +48,7 @@ def delivery_report(err, msg):
 
 
 def readH5(fname, sample_rate):
-    f = h5py.File(fname, 'r')
+    f = h5py.File(SCRIPT_BASE_PATH + '/' + fname, 'r')
     data = f['/Data']
     keys = data.keys()
     flattened_data = map(lambda k: (k, data.get(k).value.flatten()), keys)
@@ -62,14 +63,14 @@ def putRawDataInQueue(ts, data, sample_rate):
         payload = {
             "ts": ts,
             "daq_name": k[5:],
-            "d": data,
+            "d": data[:int(sample_rate)],
             "f": sample_rate,
             "sid": sid
         }
         p.produce(
             "rawData_" + str(sid),
             value=json.dumps(payload))
-        p.poll(1)
+    p.poll(1)
 
 
 while True:
@@ -83,7 +84,8 @@ while True:
     fname = msg['file_name']
     sample_rate = msg['sample_rate']
     ts = fname[:-3]
-    os.system('hdfs dfs -copyToLocal /user/vtsil/testfiles/{0} ./'.format(fname))
+    os.system('hdfs dfs -copyToLocal /user/vtsil/testfiles/{0} {1}'.format(
+        fname, SCRIPT_BASE_PATH))
     data = readH5(fname, sample_rate)
     putRawDataInQueue(ts.split('/')[-1], data, sample_rate)
-    os.system("rm {0}".format(fname))
+    os.system("rm {0}/{1}".format(SCRIPT_BASE_PATH, fname))

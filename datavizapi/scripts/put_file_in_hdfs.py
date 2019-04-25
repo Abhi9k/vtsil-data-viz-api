@@ -5,6 +5,7 @@ import ftp_operations as f_ops
 from datavizapi import AppConfig
 
 config = AppConfig().getConfig()
+SCRIPT_BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 
 p = Producer({
     'bootstrap.servers': ','.join(config['kafka']['servers']),
@@ -24,6 +25,8 @@ def fetchFileFTP(fname):
     ftp = f_ops.connectAndGetFTP()
     ftp.cwd(config['file_sync']['remote_folder'])
     f_ops.fetchFiles(ftp, [fname])
+    ftp.quit()
+    ftp.close()
 
 
 while True:
@@ -36,16 +39,16 @@ while True:
     msg = json.loads(msg.value())
     fname = msg['file_name']
     sample_rate = msg['sample_rate']
-
     fetchFileFTP(fname)
 
-    os.system("hdfs dfs -copyFromLocal {0} /user/vtsil/testfiles/".format(fname))
+    os.system("hdfs dfs -copyFromLocal {0}/{1} /user/vtsil/testfiles/".format(
+        SCRIPT_BASE_PATH, fname))
 
     payload = {
         'file_name': fname,
         'sample_rate': sample_rate
     }
-    os.system("rm {0}".format(fname))
+    os.system("rm {0}/{1}".format(SCRIPT_BASE_PATH, fname))
     p.produce(
         config['kafka']['consumer_hdfs']['topic'],
         json.dumps(payload))

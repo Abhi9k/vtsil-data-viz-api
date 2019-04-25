@@ -1,4 +1,5 @@
 import os
+import time
 from ftplib import FTP
 from datetime import datetime
 from datavizapi import AppConfig
@@ -86,6 +87,7 @@ def fetchFiles(ftp, records):
                 break
             except Exception, e:
                 print(e)
+                time.sleep(0.2)
                 pass
 
 
