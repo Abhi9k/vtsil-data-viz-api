@@ -12,6 +12,7 @@ TEMP_FILE_PATH = ftp_config['temp_file_path']
 CREDENTIALS_FILE = ftp_config['credentials_file_path']
 DATE_TIME_FORMAT = ftp_config['file_name_format']
 DESTINATION_DIR = ftp_config['destination_dir']
+SCRIPT_BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
 def getUsernamePassword():
@@ -82,7 +83,7 @@ def fetchFiles(ftp, records):
         retries = 0
         while True:
             try:
-                ofile = open(os.path.join(DESTINATION_DIR, r), 'wb')
+                ofile = open(os.path.join(SCRIPT_BASE_PATH, r), 'wb')
                 ftp.retrbinary('RETR ' + r, ofile.write)
                 ofile.close()
                 break
