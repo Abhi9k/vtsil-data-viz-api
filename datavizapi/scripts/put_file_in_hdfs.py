@@ -39,19 +39,22 @@ while True:
     msg = json.loads(msg.value())
     fname = msg['file_name']
     sample_rate = msg['sample_rate']
-    fetchFileFTP(fname)
+    try:
+        fetchFileFTP(fname)
 
-    os.system("hdfs dfs -copyFromLocal {0}/{1} /user/vtsil/testfiles/".format(
-        SCRIPT_BASE_PATH, fname))
+        os.system("hdfs dfs -copyFromLocal {0}/{1} /user/vtsil/testfiles/".format(
+            SCRIPT_BASE_PATH, fname))
 
-    payload = {
-        'file_name': fname,
-        'sample_rate': sample_rate
-    }
-    os.system("rm {0}/{1}".format(SCRIPT_BASE_PATH, fname))
-    p.produce(
-        config['kafka']['consumer_hdfs']['topic'],
-        json.dumps(payload))
+        payload = {
+            'file_name': fname,
+            'sample_rate': sample_rate
+        }
+        os.system("rm {0}/{1}".format(SCRIPT_BASE_PATH, fname))
+        p.produce(
+            config['kafka']['consumer_hdfs']['topic'],
+            json.dumps(payload))
+    except Exception, e:
+        print(e)
     p.poll(1)
 
 # import json, os, time

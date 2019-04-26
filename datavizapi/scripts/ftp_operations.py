@@ -79,15 +79,19 @@ def filterUnfetchedRecords(last_date, records):
 
 def fetchFiles(ftp, records):
     for r in records:
+        retries = 0
         while True:
             try:
                 ofile = open(os.path.join(DESTINATION_DIR, r), 'wb')
                 ftp.retrbinary('RETR ' + r, ofile.write)
                 ofile.close()
                 break
-            except Exception, e:
-                print(e)
-                time.sleep(0.2)
+            except Exception:
+                retries += 1
+                if retries > 5:
+                    break
+                else:
+                    time.sleep(0.2)
                 pass
 
 

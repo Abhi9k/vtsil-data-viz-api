@@ -84,8 +84,11 @@ while True:
     fname = msg['file_name']
     sample_rate = msg['sample_rate']
     ts = fname[:-3]
-    os.system('hdfs dfs -copyToLocal /user/vtsil/testfiles/{0} {1}'.format(
-        fname, SCRIPT_BASE_PATH))
-    data = readH5(fname, sample_rate)
-    putRawDataInQueue(ts.split('/')[-1], data, sample_rate)
-    os.system("rm {0}/{1}".format(SCRIPT_BASE_PATH, fname))
+    try:
+        os.system('hdfs dfs -copyToLocal /user/vtsil/testfiles/{0} {1}'.format(
+            fname, SCRIPT_BASE_PATH))
+        data = readH5(fname, sample_rate)
+        putRawDataInQueue(ts.split('/')[-1], data, sample_rate)
+        os.system("rm {0}/{1}".format(SCRIPT_BASE_PATH, fname))
+    except Exception, e:
+        print(str(e))
