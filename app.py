@@ -23,8 +23,13 @@ timezone = constants.APP_TZ
 def dataExport():
     from_ts = request.args.get('f')
     to_ts = request.args.get('t')
-    sids = request.args.getlist('sid')
+    daq_names = request.args.getlist('daqname')
     fname = request.args.get('fname')
+    sensor_objs = db_op.getSensorInfoAll()
+    sids = []
+    for obj in sensor_objs:
+        if obj.daq_name in daq_names:
+            sids.append(obj.id)
     commons.produceToKafka(
         config['kafka']['file_download']['topic'],
         json.dumps({'fname': fname, 'sids': sids,
