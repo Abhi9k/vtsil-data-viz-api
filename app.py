@@ -5,18 +5,31 @@ import datavizapi.cassandra_operations as db_op
 from datavizapi.utils.time_utils import (
     editedTime, formatTime, parseTime, currTime)
 import datavizapi.constants as constants
+from datavizapi import AppConfig
 from cStringIO import StringIO as IO
 import gzip
 import functools
+import json
+from datavizapi.utils import commons
 from collections import defaultdict
 
 app = Flask(__name__, static_url_path='', static_folder='web/', template_folder='templates')
-STREAMING_INCR = 10
+config = AppConfig().getConfig()
+STREAMING_INCR = 1
 timezone = constants.APP_TZ
 
 
-def emptyStreamResponse():
-    pass
+@app.route('/api/export')
+def dataExport():
+    from_ts = request.args.get('f')
+    to_ts = request.args.get('t')
+    sids = request.args.getlist('sid')
+    fname = request.args.get('fname')
+    commons.produceToKafka(
+        config['kafka']['file_download']['topic'],
+        json.dumps({'fname': fname, 'sids': sids,
+                    'from_ts': from_ts, 'to_ts': to_ts}))
+    return make_response(jsonify({}))
 
 
 def gzipped(f):
@@ -111,7 +124,7 @@ def streaming():
     response['v1'].append(
         {'ts': results[sid_list[0]][0].ts,
          'value': value})
-
+    
     # for v2
     for sid, v in results.items():
         if len(v) > 0:
@@ -120,6 +133,7 @@ def streaming():
             si = 0
             while si < num_freq:
                 temp['data'].append({"f": float(si), "p": v[0]['power_dist'][si]})
+                temp['data'] = v[0]['power_dist']
                 si += 1
             response['v2'].append(temp)
 
@@ -139,7 +153,7 @@ def getSensorPSD(sensor_id):
     from_ts = parseTime(ts, timezone,
                         constants.RES_DATE_FORMAT)
     results = db_op.fetchPSD(
-        from_ts, from_ts, get_avg_power=False, descending=False)
+        from_ts, from_ts, get_avg_power=False)
     response = {'data': []}
     for idx, data in enumerate(results[int(sensor_id)][0].power_dist):
         response['data'].append([idx, data])
@@ -161,11 +175,11 @@ def floorPSD(floor_num):
     sensors = db_op.getSensorsByFloor(floor_num)
     sids = map(lambda x: x['sid'], sensors)
     results = db_op.fetchPSD(
-        ts_from, ts_to, get_power_dist=False,
-        descending=False)
+        ts_from, ts_to, get_power_dist=False)
     sids = [sid for sid in results.keys() if sid in sids]
     response = defaultdict(list)
     for sid in sids:
+        results[sid] = sorted(results[sid], key=lambda x: x.ts)
         for v in results[sid]:
             response[sid].append(
                 [formatTime(v.ts, timezone, constants.RES_DATE_FORMAT),
@@ -203,9 +217,14 @@ def getExplorationForSensor(sensor_name):
         return jsonify({'msg': 'error'})
 
     psd = db_op.fetchPSD(
-        from_time, to_time, get_power_dist=False, descending=False)
+        from_time, to_time, get_power_dist=False)
 
     response = {'raw': [], 'psd': []}
+
+    if sid not in psd:
+        return make_response(jsonify(response))
+
+    psd[sid] = sorted(psd[sid], key=lambda x: x.ts)
 
     for data in psd[sid]:
         response['psd'].append([data.ts, data.total_power])

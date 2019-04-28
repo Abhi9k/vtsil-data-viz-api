@@ -14,6 +14,7 @@ cluster = Cluster(
 
 session = cluster.connect(config['cassandra']['keyspace'])
 session.default_fetch_size = None
+session.default_timeout = 60.0
 connection.register_connection('VTSIL Cluster', session=session)
 
 

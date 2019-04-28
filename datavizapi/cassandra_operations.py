@@ -27,33 +27,6 @@ def sensorNameToIdMap():
     return daq_name_to_sid_map
 
 
-def formatPSDResponse(response):
-    results = {}
-    for res in response:
-        if res.id not in results:
-            results[res.id] = []
-        results[res.id].append(
-            {
-                'ts': time_utils.formatTime(res.ts, timezone, constants.RES_DATE_FORMAT),
-                'total_power': res.total_power,
-                'power_dist': res.power_dist
-            })
-    return results
-
-
-def emptyPSDResponse(sids, ts, sample_f=256):
-    results = {}
-    for sid in sids:
-        results[sid] = []
-        results[sid].append(
-            {
-                'ts': time_utils.formatTime(ts, timezone, constants.RES_DATE_FORMAT),
-                'total_power': 0.0,
-                'power_dist': [0] * sample_f
-            })
-    return results
-
-
 def formatSensorResponse(response):
     results = {}
     for res in response:
@@ -165,7 +138,7 @@ def fetchLatestPSD(from_d, sids=None, get_power_dist=True, get_avg_power=True, t
 
 
 def fetchSensorDataByDate(date, from_ts, to_ts, defer_fields):
-    query = SensorDataByHour.objects.consistency(ConsistencyLevel.LOCAL_ONE)
+    query = SensorDataByHour.objects().limit(None).consistency(ConsistencyLevel.LOCAL_ONE)
     query = query.filter(date=date)
     query = query.filter(ts__gte=from_ts)
     query = query.filter(ts__lte=to_ts)

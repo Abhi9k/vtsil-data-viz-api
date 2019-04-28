@@ -35,6 +35,10 @@ kafka:
     group: 'raw'
     offset: 'earliest'
     topic: 'rawData'
+  file_download:
+    group: 'download'
+    offset: 'earliest'
+    topic: 'fdownload'
 
 file_sync:
   remote_folder: 'data'

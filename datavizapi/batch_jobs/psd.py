@@ -11,9 +11,9 @@ start_time_utc = start_time_local.astimezone(pytz.utc)
 
 def power_spectrum(input_arr, sampling_f=256.0,
                    scaling='density', window='hann'):
-    window = signal.get_window(window, len(input_arr))
+    window = signal.get_window(window, sampling_f / 2)
     return signal.welch(
-        input_arr, fs=sampling_f, scaling=scaling, window=window)
+        input_arr, fs=sampling_f, scaling=scaling, window=window, nperseg=sampling_f / 2)
 
 
 def calculate_and_save_psd(from_ts, to_ts):
