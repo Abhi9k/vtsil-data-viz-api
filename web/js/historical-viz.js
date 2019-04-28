@@ -140,6 +140,15 @@
 })(HistoricalViz || {}, Commons, document, window);
 
 
+function ondataexportclick() {
+	var sensor = d3.select('#sensor_name').property('value');
+	var start_date = d3.select('#dtp_input_1').attr('value');
+	var end_date = d3.select('#dtp_input_2').attr('value');
+	var fname = prompt("Enter a unique file name:", "explore_data");
+	var api = "http://128.173.25.223/api/export?f="+start_date+"&t="+end_date+"&fname="+fname+"&daqname="+sensor;
+	d3.json(api).then(function(resp) {});
+}
+
 d3.select('#explore-fetch')
     .on('click', function() {
         var sensor = d3.select('#sensor_name').property('value');
