@@ -4,9 +4,10 @@ from models.cassandra_models import (
 from cassandra.cqlengine.query import BatchQuery
 from cassandra import ConsistencyLevel
 import utils.time_utils as time_utils
-from utils.commons import splitRangeInHours
+from utils.commons import splitRangeInHours, splitRangeInMinutes, splitRangeInSeconds
 import constants as constants
 from collections import defaultdict
+from datavizapi.models.cassandra_models import session
 
 timezone = constants.APP_TZ
 
@@ -63,14 +64,14 @@ def insertSensorInfo(fname):
 
 
 def insertPSD(sid, total_power, power_dist, ts):
-    date = time_utils.roundToHour(ts)
+    date = time_utils.roundToMinute(ts)
     PSDByHour.consistency(ConsistencyLevel.LOCAL_ONE).create(
         id=sid, date=date, ts=ts,
         total_power=total_power, power_dist=power_dist)
 
 
 def insertPSDBatch(ts, data):
-    date = time_utils.roundToHour(ts)
+    date = time_utils.roundToMinute(ts)
     with BatchQuery() as b:
         for sid, ts, total_power, power_dist in data:
             PSDByHour.consistency(ConsistencyLevel.LOCAL_ONE).batch(b).create(
@@ -80,7 +81,7 @@ def insertPSDBatch(ts, data):
 
 def insertSensorData(sid, ts, data):
     ts = time_utils.parseTime(ts, timezone, FILENAME_DATE_FORMAT)
-    date = time_utils.roundToHour(ts)
+    date = time_utils.roundToMinute(ts)
     SensorDataByHour.consistency(ConsistencyLevel.LOCAL_ONE).create(
         id=sid, ts=ts, date=date, data=data)
 
@@ -100,10 +101,11 @@ def getSensorsByFloor(floor_num):
 
 def fetchPSDByDate(
         date, from_ts, to_ts, defer_fields):
-    query = PSDByHour.objects.consistency(ConsistencyLevel.LOCAL_ONE)
+    query = PSDByHour.objects().limit(None).consistency(ConsistencyLevel.LOCAL_ONE)
     query = query.filter(date=date)
-    query = query.filter(ts__gte=from_ts)
-    query = query.filter(ts__lte=to_ts)
+    query = query.filter(ts=from_ts)
+    # query = query.filter(ts__gte=from_ts)
+    # query = query.filter(ts__lte=to_ts)
     query = query.defer(defer_fields)
 
     return query.all()
@@ -112,7 +114,7 @@ def fetchPSDByDate(
 def fetchPSD(
         from_ts, to_ts, get_power_dist=True,
         get_avg_power=True):
-    dates = splitRangeInHours(from_ts, to_ts)
+    dates = splitRangeInMinutes(from_ts, to_ts)
     defer_fields = ['date']
     if get_power_dist is False:
         defer_fields.append('power_dist')
@@ -127,6 +129,37 @@ def fetchPSD(
         for record in records:
             response[record.id].append(record)
     return response
+
+
+# def fetchPSD(
+#         from_ts, to_ts, get_power_dist=True,
+#         get_avg_power=True):
+#     tss = splitRangeInSeconds(from_ts, to_ts)
+#     defer_fields = ['date']
+#     if get_power_dist is False:
+#         defer_fields.append('power_dist')
+#     if get_avg_power is False:
+#         defer_fields.append('total_power')
+
+#     response = defaultdict(list)
+#     futures = []
+#     query = "SELECT * FROM vtsil.psd_by_minute where date=%s and ts=%s"
+
+#     for ts in tss:
+#         date = time_utils.roundToMinute(ts)
+#         date = time_utils.formatTime(date, 'utc', constants.RES_DATE_FORMAT)
+#         ts = time_utils.formatTime(ts, 'utc', constants.RES_DATE_FORMAT)
+#         futures.append(session.execute_async(query, [date, ts]))
+
+#         # records = fetchPSDByDate(
+#         #     date, ts, ts, defer_fields)
+#     for future in futures:
+#         records = future.result()
+#         for record in records:
+#             response[record['id']].append(record)
+#     for k in response:
+#         print(k, len(response[k]))
+#     return response
 
 
 def fetchLatestPSD(from_d, sids=None, get_power_dist=True, get_avg_power=True, to_d=None):

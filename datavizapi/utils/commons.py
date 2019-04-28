@@ -17,6 +17,30 @@ def splitRangeInHours(start_time, end_time):
     return dates
 
 
+def splitRangeInMinutes(start_time, end_time):
+    dates = []
+    d = time_utils.roundToMinute(start_time)
+    dates.append(d)
+    if start_time == end_time:
+        return dates
+    while d <= end_time:
+        d = time_utils.editedTime(d, seconds=60)
+        dates.append(d)
+    return dates
+
+
+def splitRangeInSeconds(start_time, end_time):
+    dates = []
+    d = time_utils.roundToMinute(start_time)
+    dates.append(d)
+    if start_time == end_time:
+        return dates
+    while d <= end_time:
+        d = time_utils.editedTime(d, seconds=1)
+        dates.append(d)
+    return dates
+
+
 def produceToKafka(topic, message):
     p = Producer({'bootstrap.servers': ",".join(config['kafka']['servers'])})
     p.produce(topic, message, partition=0)
