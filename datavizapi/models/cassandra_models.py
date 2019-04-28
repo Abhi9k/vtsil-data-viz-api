@@ -40,7 +40,7 @@ class SensorInfo(BaseModel):
 
 
 class SensorDataByHour(BaseModel):
-    __table_name__ = 'sensor_data_by_hour'
+    __table_name__ = 'sensor_data_by_minute'
     date        = columns.DateTime(primary_key=True, partition_key=True)
     ts          = columns.DateTime(primary_key=True, partition_key=False, clustering_order='DESC')
     id          = columns.Integer(primary_key=True, partition_key=False)
@@ -48,7 +48,7 @@ class SensorDataByHour(BaseModel):
 
 
 class PSDByHour(BaseModel):
-    __table_name__ = 'psd_by_hour'
+    __table_name__ = 'psd_by_minute'
     date        = columns.DateTime(primary_key=True, partition_key=True)
     ts          = columns.DateTime(primary_key=True, partition_key=False, clustering_order='DESC')
     id          = columns.Integer(primary_key=True, partition_key=False)
