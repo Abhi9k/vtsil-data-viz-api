@@ -28,8 +28,8 @@ def formatRawSensorData(sensor_data, sids, fs):
     for ts, data in sensor_data.items():
         response = [[0] * len(sids) for _ in range(fs)]
         for item in data:
-            idx = sid_index[item.id]
-            for i, val in enumerate(item.data):
+            idx = sid_index[item['id']]
+            for i, val in enumerate(item['data']):
                 response[i][idx] = val
         for row in response:
             row = map(str, row)
@@ -65,17 +65,14 @@ while True:
         # sample_frequency = msg['fs']
         sample_frequency = 1024
         f = open('/home/vast/ftp/files/' + fname + '.csv', 'w')
-        data_gen = getRawSensorData(from_ts, to_ts)
+        future_results = db_op.fetchSensorDataById(from_ts, to_ts, sids[0])
         s = datetime.now()
-        while True:
-            try:
-                data = next(data_gen)
-            except StopIteration:
-                break
+        for future in future_results:
+            result = future.result()
             raw_data_map = defaultdict(list)
-            for item in data:
-                if item.id in sids:
-                    raw_data_map[item.ts].append(item)
+            for row in result:
+                if row['id'] in sids:
+                    raw_data_map[row['ts']].append(row)
             row = formatRawSensorData(raw_data_map, sids, sample_frequency)
             while True:
                 try:
