@@ -4,10 +4,11 @@ from models.cassandra_models import (
 from cassandra.cqlengine.query import BatchQuery
 from cassandra import ConsistencyLevel
 import utils.time_utils as time_utils
-from utils.commons import splitRangeInHours, splitRangeInMinutes, splitRangeInSeconds
+from utils.commons import splitRangeInMinutes, splitRangeInSeconds
 import constants as constants
 from collections import defaultdict
 from datavizapi.models.cassandra_models import session
+from cassandra.query import SimpleStatement
 
 timezone = constants.APP_TZ
 
@@ -70,6 +71,14 @@ def insertPSD(sid, total_power, power_dist, ts):
         total_power=total_power, power_dist=power_dist)
 
 
+def insertPSDAsync(sid, total_power, power_dist, ts):
+    date = time_utils.roundToMinute(ts)
+    query = SimpleStatement(
+        """INSERT INTO vtsil.psd_by_minute (id,date,ts,total_power,power_dist)
+        VALUES(%s,%s,%s,%s,%s)""")
+    return session.execute_async(query, (sid, date, ts, total_power, power_dist))
+
+
 def insertPSDBatch(ts, data):
     date = time_utils.roundToMinute(ts)
     with BatchQuery() as b:
@@ -96,6 +105,70 @@ def getSensorsByFloor(floor_num):
                 'sid': obj.id
             }
             response.append(temp)
+    return response
+
+
+def fetchSensorDataAsync(from_ts, to_ts):
+    response = defaultdict(list)
+    future_results = fetchSensorData(from_ts, to_ts)
+    for future in future_results:
+        result = future.result()
+        for row in result:
+            response[row['id']].append(row)
+    return response
+
+
+def fetchPSDAsync(from_ts, to_ts, get_power_dist=False, get_avg_power=True):
+    selection = "id,ts"
+    if get_avg_power:
+        selection += ",total_power"
+    if get_power_dist:
+        selection += ",power_dist"
+
+    query = SimpleStatement(
+        "SELECT {0} FROM vtsil.psd_by_minute where date=%s and ts=%s".format(selection),
+        fetch_size=None)
+    # query = "SELECT {0} FROM vtsil.psd_by_minute where date=%s and ts=%s".format(selection)
+    response = defaultdict(list)
+    future_results = []
+    ts_list = splitRangeInSeconds(from_ts, to_ts)
+
+    for ts in ts_list:
+        date = time_utils.roundToMinute(ts)
+        date = time_utils.formatTime(date, 'utc', constants.RES_DATE_FORMAT)
+        ts = time_utils.formatTime(ts, 'utc', constants.RES_DATE_FORMAT)
+        future_results.append(session.execute_async(query, [date, ts]))
+    for future in future_results:
+        result = future.result()
+        for row in result:
+            response[row['id']].append(row)
+    return response
+
+
+def fetchPSDAsyncById(from_ts, to_ts, sid, get_power_dist=False, get_avg_power=True):
+    selection = "id,ts"
+    if get_avg_power:
+        selection += ",total_power"
+    if get_power_dist:
+        selection += ",power_dist"
+
+    query = SimpleStatement(
+        "SELECT {0} FROM vtsil.psd_by_minute where date=%s and ts=%s and id=%s".format(selection),
+        fetch_size=None)
+    # query = "SELECT {0} FROM vtsil.psd_by_minute where date=%s and ts=%s".format(selection)
+    response = defaultdict(list)
+    future_results = []
+    ts_list = splitRangeInSeconds(from_ts, to_ts)
+
+    for ts in ts_list:
+        date = time_utils.roundToMinute(ts)
+        date = time_utils.formatTime(date, 'utc', constants.RES_DATE_FORMAT)
+        ts = time_utils.formatTime(ts, 'utc', constants.RES_DATE_FORMAT)
+        future_results.append(session.execute_async(query, [date, ts, sid]))
+    for future in future_results:
+        result = future.result()
+        for row in result:
+            response[row['id']].append(row)
     return response
 
 
@@ -131,41 +204,10 @@ def fetchPSD(
     return response
 
 
-# def fetchPSD(
-#         from_ts, to_ts, get_power_dist=True,
-#         get_avg_power=True):
-#     tss = splitRangeInSeconds(from_ts, to_ts)
-#     defer_fields = ['date']
-#     if get_power_dist is False:
-#         defer_fields.append('power_dist')
-#     if get_avg_power is False:
-#         defer_fields.append('total_power')
-
-#     response = defaultdict(list)
-#     futures = []
-#     query = "SELECT * FROM vtsil.psd_by_minute where date=%s and ts=%s"
-
-#     for ts in tss:
-#         date = time_utils.roundToMinute(ts)
-#         date = time_utils.formatTime(date, 'utc', constants.RES_DATE_FORMAT)
-#         ts = time_utils.formatTime(ts, 'utc', constants.RES_DATE_FORMAT)
-#         futures.append(session.execute_async(query, [date, ts]))
-
-#         # records = fetchPSDByDate(
-#         #     date, ts, ts, defer_fields)
-#     for future in futures:
-#         records = future.result()
-#         for record in records:
-#             response[record['id']].append(record)
-#     for k in response:
-#         print(k, len(response[k]))
-#     return response
-
-
 def fetchLatestPSD(from_d, sids=None, get_power_dist=True, get_avg_power=True, to_d=None):
     if to_d is None:
         to_d = time_utils.editedTime(from_d, seconds=1)
-    return fetchPSD(
+    return fetchPSDAsync(
         from_d, to_d, get_power_dist=get_power_dist,
         get_avg_power=get_avg_power)
 
@@ -181,12 +223,31 @@ def fetchSensorDataByDate(date, from_ts, to_ts, defer_fields):
 
 
 def fetchSensorData(from_ts, to_ts):
-    dates = splitRangeInHours(from_ts, to_ts)
-    defer_fields = ['date']
+    query = SimpleStatement(
+        "SELECT id,ts,data FROM vtsil.sensor_data_by_minute where date=%s and ts=%s",
+        fetch_size=None)
+    future_results = []
+    ts_list = splitRangeInSeconds(from_ts, to_ts)
 
-    response = defaultdict(list)
-    for date in dates:
-        records = fetchSensorDataByDate(date, from_ts, to_ts, defer_fields)
-        for record in records:
-            response[record.id].append(record)
-    return response
+    for ts in ts_list:
+        date = time_utils.roundToMinute(ts)
+        date = time_utils.formatTime(date, 'utc', constants.RES_DATE_FORMAT)
+        ts = time_utils.formatTime(ts, 'utc', constants.RES_DATE_FORMAT)
+        future_results.append(session.execute_async(query, [date, ts]))
+    return future_results
+
+
+def fetchSensorDataById(from_ts, to_ts, sid):
+    query = SimpleStatement(
+        "SELECT id,ts,data FROM vtsil.sensor_data_by_minute where date=%s and ts=%s and id=%s",
+        fetch_size=None)
+    future_results = []
+    ts_list = splitRangeInSeconds(from_ts, to_ts)
+
+    for ts in ts_list:
+        date = time_utils.roundToMinute(ts)
+        date = time_utils.formatTime(date, 'utc', constants.RES_DATE_FORMAT)
+        ts = time_utils.formatTime(ts, 'utc', constants.RES_DATE_FORMAT)
+        future_results.append(session.execute_async(query, [date, ts, sid]))
+    return future_results
+

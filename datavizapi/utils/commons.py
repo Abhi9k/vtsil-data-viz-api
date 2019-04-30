@@ -31,13 +31,10 @@ def splitRangeInMinutes(start_time, end_time):
 
 def splitRangeInSeconds(start_time, end_time):
     dates = []
-    d = time_utils.roundToMinute(start_time)
-    dates.append(d)
-    if start_time == end_time:
-        return dates
+    d = start_time
     while d <= end_time:
-        d = time_utils.editedTime(d, seconds=1)
         dates.append(d)
+        d = time_utils.editedTime(d, seconds=1)
     return dates
 
 

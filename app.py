@@ -125,11 +125,11 @@ def streaming():
     value = {}
     for sid, val in results.items():
         if len(val) > 0:
-            value[str(sid)] = val[0].total_power
+            value[str(sid)] = val[0]['total_power']
     response['v1'].append(
-        {'ts': results[sid_list[0]][0].ts,
+        {'ts': results[sid_list[0]][0]['ts'],
          'value': value})
-    
+
     # for v2
     for sid, v in results.items():
         if len(v) > 0:
@@ -138,7 +138,6 @@ def streaming():
             si = 0
             while si < num_freq:
                 temp['data'].append({"f": float(si), "p": v[0]['power_dist'][si]})
-                temp['data'] = v[0]['power_dist']
                 si += 1
             response['v2'].append(temp)
 
@@ -157,10 +156,11 @@ def getSensorPSD(sensor_id):
 
     from_ts = parseTime(ts, timezone,
                         constants.RES_DATE_FORMAT)
-    results = db_op.fetchPSD(
-        from_ts, from_ts, get_avg_power=False)
+    results = db_op.fetchPSDAsync(
+        from_ts, from_ts, get_avg_power=False, get_power_dist=True)
     response = {'data': []}
-    for idx, data in enumerate(results[int(sensor_id)][0].power_dist):
+
+    for idx, data in enumerate(results[int(sensor_id)][0]['power_dist']):
         response['data'].append([idx, data])
     return make_response(jsonify(response))
 
@@ -179,16 +179,16 @@ def floorPSD(floor_num):
                       constants.RES_DATE_FORMAT)
     sensors = db_op.getSensorsByFloor(floor_num)
     sids = map(lambda x: x['sid'], sensors)
-    results = db_op.fetchPSD(
+    results = db_op.fetchPSDAsync(
         ts_from, ts_to, get_power_dist=False)
     sids = [sid for sid in results.keys() if sid in sids]
     response = defaultdict(list)
     for sid in sids:
-        results[sid] = sorted(results[sid], key=lambda x: x.ts)
+        results[sid] = sorted(results[sid], key=lambda x: x['ts'])
         for v in results[sid]:
             response[sid].append(
-                [formatTime(v.ts, timezone, constants.RES_DATE_FORMAT),
-                 v.total_power])
+                [formatTime(v['ts'], timezone, constants.RES_DATE_FORMAT),
+                 v['total_power']])
 
     return make_response(jsonify(response))
 
@@ -221,18 +221,18 @@ def getExplorationForSensor(sensor_name):
     if((sid is None) or (from_time > to_time)):
         return jsonify({'msg': 'error'})
 
-    psd = db_op.fetchPSD(
-        from_time, to_time, get_power_dist=False)
+    psd = db_op.fetchPSDAsyncById(
+        from_time, to_time, sid, get_power_dist=False)
 
     response = {'raw': [], 'psd': []}
 
     if sid not in psd:
         return make_response(jsonify(response))
 
-    psd[sid] = sorted(psd[sid], key=lambda x: x.ts)
+    psd[sid] = sorted(psd[sid], key=lambda x: x['ts'])
 
     for data in psd[sid]:
-        response['psd'].append([data.ts, data.total_power])
+        response['psd'].append([data['ts'], data['total_power']])
 
     return make_response(jsonify(response))
 
