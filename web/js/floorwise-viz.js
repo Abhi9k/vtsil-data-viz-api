@@ -25,14 +25,14 @@
 
 	function stream() {
 		if(is_dragging===true) {
-			setTimeout(stream, 500);
+			setTimeout(stream, 50);
 			return;
 		}
 		curr_idx += 1;
 		mod.drawSensors(Commons.floormap_outer, Commons.sensor_coords[+floor_num-1]);
 		moveTracker(curr_idx)
 		if(curr_idx < dates.length)
-			setTimeout(stream, 500);
+			setTimeout(stream, 50);
 	}
 
 	function startFloorwiseStreaming(data) {

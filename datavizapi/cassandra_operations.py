@@ -251,3 +251,19 @@ def fetchSensorDataById(from_ts, to_ts, sid):
         future_results.append(session.execute_async(query, [date, ts, sid]))
     return future_results
 
+
+def fetchSensorDataPerMinute(from_ts, to_ts):
+    query = SimpleStatement(
+        "SELECT id,ts,data FROM vtsil.sensor_data_by_minute where date=%s and ts>=%s and ts<=%s",
+        fetch_size=None)
+    future_results = []
+    date_list = splitRangeInMinutes(from_ts, to_ts)
+    from_ts = time_utils.formatTime(from_ts, 'utc', constants.RES_DATE_FORMAT)
+    to_ts = time_utils.formatTime(to_ts, 'utc', constants.RES_DATE_FORMAT)
+    for date in date_list:
+        date = time_utils.formatTime(date, 'utc', constants.RES_DATE_FORMAT)
+
+        future_results.append(
+            session.execute_async(query, [date, from_ts, to_ts]))
+    return future_results
+

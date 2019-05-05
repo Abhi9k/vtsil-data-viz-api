@@ -12,6 +12,12 @@ start_time_utc = start_time_local.astimezone(pytz.utc)
 sid_to_data_map = defaultdict(list)
 
 
+def get_all_sensor_ids():
+    objs = db_op.getSensorInfoAll()
+    ids = [x.id for x in objs]
+    return ids
+
+
 def power_spectrum(input_arr, sampling_f=256.0,
                    scaling='density', window='hann'):
     window = signal.get_window(window, sampling_f)

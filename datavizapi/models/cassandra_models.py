@@ -1,5 +1,5 @@
 from cassandra.cluster import Cluster
-from cassandra.policies import RoundRobinPolicy
+from cassandra.policies import RoundRobinPolicy, RetryPolicy
 from cassandra.cqlengine import columns
 from cassandra.cqlengine import connection
 from cassandra.cqlengine.models import Model
@@ -10,11 +10,13 @@ config = AppConfig().getConfig()
 cluster = Cluster(
     config['cassandra']['nodes'],
     load_balancing_policy=RoundRobinPolicy(),
-    port=config['cassandra']['port'])
+    port=config['cassandra']['port'],
+    default_retry_policy=RetryPolicy())
 
 session = cluster.connect(config['cassandra']['keyspace'])
 session.default_fetch_size = None
-session.default_timeout = 60.0
+session.default_timeout = 20000
+session.read_request_timeout_in_ms = 30000
 connection.register_connection('VTSIL Cluster', session=session)
 
 
