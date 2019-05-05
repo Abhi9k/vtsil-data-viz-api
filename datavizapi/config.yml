@@ -49,5 +49,5 @@ file_sync:
   ftp_remote_ip: '10.0.1.8'
   ftp_remote_port: '8000'
 
-footstep_sensor_names: ['3C-19', '3C-20', '3C-21', '3C-22', '3C-23', '3C-24', '3C-25', '3C-26', '3C-27', '3C-28', '3C-29', '3C-30']
+footstep_sensor_names: ['3C-19', '3C-20', '3C-21', '3C-23', '3C-24', '3C-25', '3C-26', '3C-27', '3C-28', '3C-29', '3C-30']
 ...
