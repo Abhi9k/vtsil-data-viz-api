@@ -27,8 +27,8 @@ def power_spectrum(input_arr, sampling_f=256.0,
 
 def calculate_and_save_psd(from_ts, to_ts, duration):
     raw_data = db_op.fetchSensorDataAsync(from_ts, to_ts)
+    future_results = []
     for sid, objects in raw_data.items():
-        future_results = []
         sampling_freq = None
         for obj in objects:
             sid_to_data_map[sid].extend(obj['data'])
