@@ -10,20 +10,11 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
 	<link rel="stylesheet" type="text/css" href="css/button-style.css"/>
 	<link rel="stylesheet" type="text/css" href="css/style.css"/>
+	<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+	<meta name="theme-color" content="#ffffff">
 </head>
 <body>
-	<div id="tooltip" class="hidden">
-		<p><span id="key"></span></p>
-		<p><span id="value1"></span></p>
-		<p><span id="value2"></span></p>
-		<p><span style="width: 100%;align-text:center; font-size:0.75em">Click to select</span></p>
-	</div>
-	<div class="export-view hidden">
-		<h4>Last 1-hour data will be downloaded for following sensors</h4>
-		<p></p>
-		<div><button class="pure-material-button-contained" id="export-yes">Export</button><button class="pure-material-button-contained" id="export-no">Not Yet</button></div>
-	</div>
-
 	<div class="navbar">
 		<div class="nav-left">
 			<div class="brand">
@@ -33,58 +24,39 @@
 				<p>Life of Goodwin Hall</p>
 			</div>
 		</div>
-		<div class="nav-right">
-			<div class="time-container">
-				<input id="start_time" type="text" name="start_time" style="width: 150px;">
-				<input id="start_stream" type="button" name="start_stream" style="width: 80px" value="Stream">
-			</div>
-			<div id="data-export" onclick="ondataexportclick()" title="Export data">
-				<p><a href="javascript:void(0);"><i class="fa fa-file-export"></i></a></p>
-			</div>
-			<div id="undo-selection" title="Undo last selection">
-				<p><a href="javascript:void(0);" onclick="onundoselectionclick()"><i class="fa fa-undo"></i></a></p>
-			</div>
-		</div>
 	</div>
 
-	<section class="content container">
-		<div id="v1">
-			<div class="floor first"></div>
-			<div class="floor second"></div>
-			<div class="floor third"></div>
-			<div class="floor fourth"></div>
-			<div class="floor fifth"></div>
-		</div>
-		<div id="v2-parent">
-			<div id="v2"></div>
-			<div class="v2 highlight hidden"></div>
-			<div class="zoom-view">
-				<div class="zoom-in"><span><i class="icon-zoom-in"></i></span></div>
-				<div class="zoom-out"><span><i class="icon-zoom-out"></i></span></div>
+	<section class="content" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center;">
+		<a style="width: 40%; height: 40%; margin: 20px; text-decoration: none;" href="/building">
+			<div class="thumbnail-div" style="background-image: url('images/thumbnail_viz1.jpg');">
+				<p>Building</p>
 			</div>
-		</div>
-		<div id="v3-parent">
-			<div id="v3"></div>
-			<div class="zoom-view">
-				<div class="zoom-in"><span><i class="icon-zoom-in"></i></span></div>
-				<div class="zoom-out"><span><i class="icon-zoom-out"></i></span></div>
+		</a>
+		<a style="width: 40%; height: 40%; margin: 20px; text-decoration: none;" href="/floorwise">
+			<div class="thumbnail-div" style="background-image: url('images/thumbnail_viz2.jpg');">
+				<p>Floor</p>
 			</div>
+		</a>
+		<a style="width: 40%; height: 40%; margin: 20px; text-decoration: none;" href="/explore">
+			<div class="thumbnail-div" style="background-image: url('images/thumbnail_viz3.jpg');">
+				<p>Sensor</p>
+			</div>
+		</a>
+		<a style="width: 40%; height: 40%; margin: 20px; text-decoration: none;" href="/oma">
+			<div class="thumbnail-div" style="background-image: url('images/thumbnail_viz1.jpg');">
+				<p>OMA</p>
+			</div>
+		</a>
+		<!-- <div class="thumbnail-div" style="background-image: url('images/thumbnail_viz2.jpg');">
+			<p>Floor</p>
 		</div>
-		<div class="interaction">
-
+		<div class="thumbnail-div" style="background-image: url('images/thumbnail_viz3.jpg');">
+			<p>Sensors</p>
 		</div>
-		
+		<div class="thumbnail-div" style="background-image: url('images/thumbnail_viz1.jpg');">
+			<p>OMA</p>
+		</div> -->
 	</section>
-<script src="https://d3js.org/d3.v4.min.js"></script>
-<script src="https://unpkg.com/d3-3d/build/d3-3d.min.js"></script>
-<script src="https://d3js.org/d3-color.v1.min.js"></script>
-<script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
-<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script type="text/javascript" src="js/commons.js"></script>
-<script type="text/javascript" src="js/dashboard-interaction.js"></script>
-<script type="text/javascript" src="js/dashboard-floor-viz.js"></script>
-<script type="text/javascript" src="js/dashboard-spectrum-viz.js"></script>
-<script type="text/javascript" src="js/dashboard-timeseries-viz.js"></script>
-<script type="text/javascript" src="js/dashboard.js"></script>
 </body>
 </html>

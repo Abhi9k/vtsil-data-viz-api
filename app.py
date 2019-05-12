@@ -90,6 +90,11 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/building')
+def building():
+    return render_template('building.html')
+
+
 @app.route('/explore')
 def explore():
     return render_template('explore.html')
@@ -134,7 +139,7 @@ def streaming():
     for sid, v in results.items():
         if len(v) > 0:
             temp = {"id": str(sid), "data": []}
-            num_freq = len(v[0]['power_dist'])
+            num_freq = len(v[0]['power_dist']) / 2
             si = 0
             while si < num_freq:
                 temp['data'].append({"f": float(si), "p": v[0]['power_dist'][si]})

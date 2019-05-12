@@ -5,20 +5,11 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<title>Goodwin Hall Visualization</title>
 	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 	<link rel="stylesheet" type="text/css" href="css/button-style.css"/>
 	<link rel="stylesheet" type="text/css" href="css/style.css"/>
-
-
-	<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-	<link rel="manifest" href="site.webmanifest">
-	<link rel="mask-icon" href="safari-pinned-tab.svg" color="#5bbad5">
-	<meta name="msapplication-TileColor" content="#da532c">
-	<meta name="theme-color" content="#ffffff">
 </head>
 <body>
 	<div id="tooltip" class="hidden">
@@ -32,9 +23,6 @@
 		<p></p>
 		<div><button class="pure-material-button-contained" id="export-yes">Export</button><button class="pure-material-button-contained" id="export-no">Not Yet</button></div>
 	</div>
-	<!-- <section class="header"> -->
-		<!-- <div class="title"><h2>Life of Goodwin Hall <span class="selection-buttons"><button id="reset-selection" class="pure-material-button-contained">Reset Selection</button><button id="export-data" class="pure-material-button-contained">Export</button></span></h2>
-		</div> -->
 
 	<div class="navbar">
 		<div class="nav-left">
@@ -46,30 +34,20 @@
 			</div>
 		</div>
 		<div class="nav-right">
+			<div class="time-container">
+				<input id="start_time" type="text" name="start_time" style="width: 150px;">
+				<input id="start_stream" type="button" name="start_stream" style="width: 80px" value="Stream">
+			</div>
 			<div id="data-export" onclick="ondataexportclick()" title="Export data">
 				<p><a href="javascript:void(0);"><i class="fa fa-file-export"></i></a></p>
 			</div>
 			<div id="undo-selection" title="Undo last selection">
 				<p><a href="javascript:void(0);" onclick="onundoselectionclick()"><i class="fa fa-undo"></i></a></p>
 			</div>
-			<div id="viz-type" onchange="onviztypechanged()" title="Change visualization">
-				<div class="nav-dropdown">
-					<div class="nav-dropdown-body">
-						<select id="select-viz-type">
-							<option value="live">Live</option>
-							<option value="single-sensor">Individual</option>
-							<option value="compare-sensor">Compare</option>
-						</select>
-					</div>
-				</div>
-			</div>
-			<div id="refresh-interval">
-				<p><a href="javascript:void(0);" onclick="onrefreshintervalclick()"><i class="fa fa-redo"></i> Every 5 sec</a></p>
-			</div>
 		</div>
 	</div>
 
-	<section class="content">
+	<section class="content container">
 		<div id="v1">
 			<div class="floor first"></div>
 			<div class="floor second"></div>
@@ -102,10 +80,11 @@
 <script src="https://d3js.org/d3-color.v1.min.js"></script>
 <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-<script type="text/javascript" src="js/script.js"></script>
-<script type="text/javascript" src="js/v1.js"></script>
-<script type="text/javascript" src="js/v2.js"></script>
-<script type="text/javascript" src="js/v3.js"></script>
-<script type="text/javascript" src="js/interaction.js"></script>
+<script type="text/javascript" src="js/commons.js"></script>
+<script type="text/javascript" src="js/dashboard-interaction.js"></script>
+<script type="text/javascript" src="js/dashboard-floor-viz.js"></script>
+<script type="text/javascript" src="js/dashboard-spectrum-viz.js"></script>
+<script type="text/javascript" src="js/dashboard-timeseries-viz.js"></script>
+<script type="text/javascript" src="js/dashboard.js"></script>
 </body>
 </html>

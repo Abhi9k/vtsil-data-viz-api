@@ -27,6 +27,22 @@ body {
     height: 90vh;
 }
 
+.thumbnail-div {
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    background-size: cover;
+    opacity: 0.5;
+}
+
+.thumbnail-div>p {
+    color: #fff;
+    padding-top: 20%;
+    width: 100%;
+    font-size: 2em;
+    text-align: center;
+}
+
 #v1,#v2-parent,#v3-parent {
     width: 100%;
 }

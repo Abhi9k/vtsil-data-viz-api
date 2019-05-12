@@ -1,4 +1,4 @@
-var sensor_info_api = 'http://128.173.25.223/api/sensor_info';
+var sensor_info_api = '/api/sensor_info';
 
 
 if( 'function' === typeof importScripts) {
@@ -13,7 +13,7 @@ onmessage = function(event){
         if(msg[1]) {
             start_time = msg[1];
         }
-        var stream_api = `http://128.173.25.223/api/stream?t=${start_time}&ns=${ns}`;
+        var stream_api = `/api/stream?t=${start_time}&ns=${ns}`;
     	d3.json(stream_api).then(function(response) {
     		postMessage(['data', response]);
     	});
