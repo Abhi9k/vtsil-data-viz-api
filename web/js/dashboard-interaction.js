@@ -4,6 +4,8 @@
 
 	mod.is_hovered = false;
 
+	mod.latest_time = '';
+
 
 	mod.zoomInView = function(view_id_1, view_id_2, module) {
 			if(is_zoomed===true)
@@ -95,6 +97,14 @@
 		if(!selected_for_export.includes(item))
 			selected_for_export.push(item);
 	};
+
+	mod.moveToFloorViz = function(floor_num) {
+		WINDOW.open('/floorwise?f='+floor_num, '_blank');
+	}
+
+	mod.moveToExploreViz = function(data) {
+		WINDOW.open('/explore?id='+Commons.sensor_info[data.id].daq_name, '_blank');
+	}
 
 	mod.commonMouseover = function(item, d, type) {
 		mod.is_hovered = true;

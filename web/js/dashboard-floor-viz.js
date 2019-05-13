@@ -152,10 +152,7 @@
 	        .append('path')
 	        	.attr('class', 'face')
 	        .merge(faces)
-	            .transition()
-	            .delay(tt)
-	            .duration(tt)
-	        	.attr('d', cubes3D.draw);
+	        	.attr('d', function(d){return cubes3D.draw(d);});
 
 	    yScaleInner
 	        .enter()
@@ -204,7 +201,6 @@
 
 	    hs = d3.scaleQuantile()
 	                            .domain(data_values)
-	                            // .domain([MIN_POWER,MAX_POWER])
 	                            .range(d3.range(0, 6));
 
 	    height_scale = d3.scaleLinear()
@@ -241,19 +237,24 @@
 	                                 y_scale(parseFloat(Commons.floormap_inner[i][0][1]))]);
 
 	        }
+
 	        for(let i=0;i<Commons.floormap_outer.length; i++){
 	            yLineOuter[id].push([x_scale(parseFloat(Commons.floormap_outer[i][0][0])),1,
 	                                 y_scale(parseFloat(Commons.floormap_outer[i][0][1]))])
 	        }
-	        for(let i=0; i<Commons.sensor_coords[id].length; i++) {
-	            let x=x_scale(parseFloat(Commons.sensor_coords[id][i][2]));
-	            let z=y_scale(parseFloat(Commons.sensor_coords[id][i][3]));
-	            let h=height_scale(hs(viz_data.value[Commons.sensor_coords[id][i][0]]))
-	            let _cube=makeCube(h,x,z);
-	            _cube.id=Commons.sensor_coords[id][i][0];
-	            _cube.color=color(color_scale(parseFloat(viz_data.value[Commons.sensor_coords[id][i][0]])));
 
-	            cubesData[id].push(_cube);
+	        for(let i=0; i<Commons.sensor_coords[id].length; i++) {
+	        	var sid = Commons.sensor_coords[id][i][0];
+	            if(viz_data.value.hasOwnProperty(sid) === true) {
+		            let x=x_scale(parseFloat(Commons.sensor_coords[id][i][2]));
+		            let z=y_scale(parseFloat(Commons.sensor_coords[id][i][3]));
+		            let h=height_scale(hs(viz_data.value[sid]));
+		            let _cube=makeCube(h,x,z);
+		            _cube.id=sid;
+		            _cube.color=color(color_scale(parseFloat(viz_data.value[sid])));
+
+		            cubesData[id].push(_cube);
+		        }
 	        }
 
 	        let data = [

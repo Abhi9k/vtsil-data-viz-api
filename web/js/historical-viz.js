@@ -26,7 +26,6 @@
 
 	mod.fetchDataAndDraw = function(sensor, start_date, end_date) {
 		var api = "/api/explore/"+sensor+"?from="+start_date+"&to="+end_date;
-		// var api = "http://localhost:8000/api/explore/"+sensor+"?from="+start_date+"&to="+end_date;
 		d3.select('.loader').classed('hidden', false);
 		d3.json(api).then(function(response) {
 			if(response['msg']==='error') {
@@ -145,7 +144,7 @@ function ondataexportclick() {
 	var start_date = d3.select('#dtp_input_1').attr('value');
 	var end_date = d3.select('#dtp_input_2').attr('value');
 	var fname = prompt("Enter a unique file name:", "explore_data");
-	var api = "http://128.173.25.223/api/export?f="+start_date+"&t="+end_date+"&fname="+fname+"&daqname="+sensor;
+	var api = "/api/export?f="+start_date+"&t="+end_date+"&fname="+fname+"&daqname="+sensor;
 	d3.json(api).then(function(resp) {});
 }
 
@@ -178,4 +177,8 @@ window.addEventListener("DOMContentLoaded", function() {
     });
 
     HistoricalViz.initView();
+
+    $('.form_datetime').attr('data-date', Commons.currDate());
+    $('.to_datetime').attr('data-date', Commons.currDate());
+    setSensorName();
 });

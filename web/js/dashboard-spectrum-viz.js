@@ -42,7 +42,8 @@
 		var sensor_ids = [[], [], [], [], []];
 		for(var i=0; i<present_ids.length; i++) {
 			var floor_num = Commons.sid_floor_mapping[present_ids[i]];
-			sensor_ids[+floor_num - 1].push(present_ids[i]);
+			if(floor_num !== undefined)
+				sensor_ids[+floor_num - 1].push(present_ids[i]);
 		}
 
 		var tickValues = [];
@@ -102,8 +103,7 @@
 						            }
 						        })
 					            .on("click", function(d, i) {
-					                DashboardInteraction.addToSelection(+d.id);
-					                DashboardInteraction.selectedAnimation(d3.event.x, d3.event.y);
+					                DashboardInteraction.moveToExploreViz(d);
 					            })
 							.merge(sensors)
 								.selectAll('rect')

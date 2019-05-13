@@ -1,8 +1,11 @@
 ; var Dashboard = (function(mod, Commons, DashboardInteraction, DashboardFloorViz, DashboardSpectrumViz, DashboardTimeseriesViz, DOCUMENT, WINDOW) {
 	var is_first = true;
+
 	Commons.web_worker.onmessage = function(event) {
-	    var msg=event.data;
+	    var msg = event.data;
 	    if(msg[0]==='data') {
+	    	var date = new Date(msg[1]['v1'][0]['ts']);
+	    	DashboardInteraction.latest_time = Commons.formatDate(date);
 	    	DashboardTimeseriesViz.updateData(msg[1]['v1'][0]);
 	    	DashboardFloorViz.initData(msg[1]['v1'][0]);
 	    	DashboardSpectrumViz.initData(msg[1]['v2']);

@@ -63,12 +63,10 @@
 							.domain(d3.extent(dates, d=>new Date(d[0])))
 							.range([settings.padding.l, settings.w-settings.padding.r]);
 		settings.svg.select('g.tracker').select('circle')
-						.transition()
 						.attr('cx', x_scale(new Date(date)));
 	}
 
-	function onSensorSelection(sid) {
-		// console.log(sid+ " selected");
+	function onSensorHovered(sid) {
 		var api = "/api/psd/"+sid+"?d="+dates[curr_idx];
 
 		d3.json(api).then(function(response) {
@@ -84,9 +82,12 @@
 	    });
 	}
 
+	function onSensorClicked(sid) {
+		WINDOW.open('/explore?id='+Commons.sensor_info[sid].daq_name, '_blank');
+	}
+
 	function fetchFloorPSD(floor_num, start_date, end_date) {
 		var api = "/api/floor/psd/"+(floor_num)+"?from="+start_date+"&to="+end_date;
-		// var api = "http://localhost:8000/api/floor/psd/"+(floor_num)+"?from="+start_date+"&to="+end_date;
 
 		d3.select('.loader').classed('hidden', false);
 
@@ -226,27 +227,11 @@
 		circles.enter()
 				.append('circle')
 					.attr('stroke', 'none')
-					.on('click', d=>onSensorSelection(d[0]))
 					.attr('opacity', 0.5)
 					.attr('cx', d=>x_scale(d[2]))
 					.attr('cy', d=>y_scale(d[3]))
-					.on('mouseover', function(d) {
-						d3.select('#tooltip').classed('hidden', false);
-		                var position = [
-		                    d3.event.x,
-		                    d3.event.y
-		                ];
-						position=Commons.calculateTooltipPosition(position[0],position[1],Commons.W, Commons.H);
-						d3.select('#tooltip')
-							.style('left', (position[0]+10)+"px")
-							.style('top', (position[1]+10)+"px");
-						d3.select('#playback-time').text(
-							Commons.sensor_info[+d[0]]['daq_name']+","+d3.format("." + p + "e")(getPowerValue(d[0], curr_idx)));
-
-					})
-					.on('mouseout', function() {
-						d3.select('#tooltip').classed('hidden', true);
-					})
+					.on('mouseover', d=>onSensorHovered(d[0]))
+					.on('click', d=>onSensorClicked(d[0]))
 				.merge(circles)
 					.transition()
 					.attr('r', d=>radius_scale(getPowerValue(d[0], curr_idx)))
@@ -303,7 +288,7 @@
 		        .attr("text-anchor", "middle")  
 		        .style("font-size", "16px")
 				.attr('stroke', 'white')
-				.text(dates[curr_idx]);
+				.text(Commons.sensor_info[data.id]['daq_name'] + "---" + dates[curr_idx]);
 	};
 
 	mod.drawPlayback = function(data) {
@@ -425,4 +410,7 @@ window.addEventListener("DOMContentLoaded", function() {
     });
     FloorwiseViz.initView();
     Commons.web_worker.postMessage(['sensorInfo']);
+    setFloorNumber();
+    $('.form_datetime').attr('data-date', Commons.currDate());
+    $('.to_datetime').attr('data-date', Commons.currDate());
 });

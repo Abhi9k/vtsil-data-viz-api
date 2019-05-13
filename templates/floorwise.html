@@ -48,16 +48,16 @@
 				<div id="select-floor" onchange="FloorwiseViz.floorSelected();" class="nav-dropdown col-sm-2" id="floor-number" title="Select floor number">
 					<div class="nav-dropdown-body" style="height: inherit; width: 100%;">
 						<select id="select-floor-number" style="height: inherit; width: 100%; padding-left: 10px;">
-							<option value="1">Floor 1</option>
-							<option value="2">Floor 2</option>
-							<option value="3">Floor 3</option>
-							<option value="4">Floor 4</option>
+							<option value="1">Floor 2</option>
+							<option value="2">Floor 3</option>
+							<option value="3">Floor 4</option>
+							<option value="4">Floor 5</option>
 							<option value="5">Terrace</option>
 						</select>
 					</div>
 				</div>
 				<div class="col-sm-4">
-					    <div class="input-group date form_datetime" data-date="2019-02-19T07:00:00Z" data-date-format="dd MM yyyy - HH:ii p" data-link-field="dtp_input_1">
+					    <div class="input-group date form_datetime" data-date="" data-date-format="dd MM yyyy - HH:ii p" data-link-field="dtp_input_1">
 					        <input class="form-control" size="16" type="text" value="" readonly placeholder="From Time">
 					        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
 							<span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
@@ -65,7 +65,7 @@
 						<input type="hidden" id="dtp_input_1" value="" /><br/>
 				</div>
 				<div class="col-sm-4">
-					    <div class="input-group date to_datetime" data-date="2019-02-19T07:00:04Z" data-date-format="dd MM yyyy - HH:ii p" data-link-field="dtp_input_2">
+					    <div class="input-group date to_datetime" data-date="" data-date-format="dd MM yyyy - HH:ii p" data-link-field="dtp_input_2">
 					        <input class="form-control" size="16" type="text" value="" readonly placeholder="To Time">
 					        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
 							<span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
@@ -104,6 +104,16 @@
 <script type="text/javascript" src="js/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript" src="js/bootstrap-slider.min.js"></script>
 <script type="text/javascript" src="js/commons.js"></script>
+<script>
+function setFloorNumber() {
+	{% if request.args.get('f') is not none %}   
+	    $('select#select-floor-number').val({{ request.args.get('f') }})
+	{% else %}
+	    $('select#select-floor-number').val('1')
+	{%endif %}
+}
+</script>
 <script type="text/javascript" src="js/floorwise-viz.js"></script>
+
 </body>
 </html>

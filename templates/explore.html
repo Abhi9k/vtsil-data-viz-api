@@ -48,7 +48,7 @@
 					<input type="text" class="form-control" id="sensor_name" placeholder="Sensor Name" value="" >
 				</div>
 				<div class="col-sm-4">
-					    <div class="input-group date form_datetime" data-date="2019-02-16T20:45:32Z" data-date-format="dd MM yyyy - HH:ii p" data-link-field="dtp_input_1">
+					    <div class="input-group date form_datetime" data-date=""  data-date-format="dd MM yyyy - HH:ii p" data-link-field="dtp_input_1">
 					        <input class="form-control" size="16" type="text" value="" readonly placeholder="From Time">
 					        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
 							<span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
@@ -56,7 +56,7 @@
 						<input type="hidden" id="dtp_input_1" value="" /><br/>
 				</div>
 				<div class="col-sm-4">
-					    <div class="input-group date to_datetime" data-date="2019-02-16T20:45:32Z" data-date-format="dd MM yyyy - HH:ii p" data-link-field="dtp_input_2">
+					    <div class="input-group date to_datetime" data-date=""  data-date-format="dd MM yyyy - HH:ii p" data-link-field="dtp_input_2">
 					        <input class="form-control" size="16" type="text" value="" readonly placeholder="To Time">
 					        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
 							<span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
@@ -74,6 +74,13 @@
 <script src="https://d3js.org/d3-fetch.v1.min.js"></script>
 <script type="text/javascript" src="js/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript" src="js/commons.js"></script>
+<script type="text/javascript">
+	function setSensorName() {
+		{% if request.args.get('id') is not none %}   
+		    $('#sensor_name').val('{{ request.args.get('id') }}')
+		{%endif %}
+	}
+</script>
 <script type="text/javascript" src="js/historical-viz.js"></script>
 
 </body>

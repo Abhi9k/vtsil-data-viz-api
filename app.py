@@ -105,6 +105,11 @@ def floorwise():
     return render_template('floorwise.html')
 
 
+@app.route('/oma')
+def oma_results():
+    return render_template('oma.html')
+
+
 @app.route('/api/stream', methods=('get',))
 @gzipped
 def streaming():
@@ -203,14 +208,18 @@ def getSensorInfo():
     sensor_objs = db_op.getSensorInfoAll()
     resp_dict = {}
     for obj in sensor_objs:
-        resp_dict[str(obj.id)] = {
-            'daq_name': obj.daq_name,
-            'floor': obj.floor_num,
-            'orientation': obj.orientation,
-            'sensitivity': obj.sensitivity,
-            'serial': obj.serial_num,
-            'name': obj.name
-        }
+        if (obj.x_pos != '') or (obj.floor_num != ''):
+            resp_dict[str(obj.id)] = {
+                'daq_name': obj.daq_name,
+                'floor': obj.floor_num,
+                'orientation': obj.orientation,
+                'sensitivity': obj.sensitivity,
+                'serial': obj.serial_num,
+                'name': obj.name,
+                'x': obj.x_pos,
+                'y': obj.y_pos,
+                'z': obj.z_pos
+            }
     return jsonify(resp_dict)
 
 
