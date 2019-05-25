@@ -1,7 +1,7 @@
 from confluent_kafka import Consumer
 from datavizapi import AppConfig
 import json
-from datavizapi.utils import time_utils, commons
+from datavizapi.utils import time_utils
 import datavizapi.constants as constants
 import datavizapi.cassandra_operations as db_op
 from collections import defaultdict
@@ -17,12 +17,6 @@ c = Consumer({
 c.subscribe([config['kafka']['file_download']['topic']])
 
 
-def getRawSensorData(from_ts, to_ts):
-    dates = commons.splitRangeInHours(from_ts, to_ts)
-    for date in dates:
-        yield db_op.fetchSensorDataByDate(date, from_ts, to_ts, ['date'])
-
-
 def formatRawSensorData(sensor_data, sids, fs):
     sid_index = {k: i for i, k in enumerate(sids)}
     for ts, data in sensor_data.items():
@@ -34,17 +28,6 @@ def formatRawSensorData(sensor_data, sids, fs):
         for row in response:
             row = map(str, row)
             yield ",".join(row) + "\n"
-
-
-def generate(from_ts, to_ts, sids, fs):
-    data_gen = getRawSensorData(from_ts, to_ts)()
-    for data in data_gen:
-        raw = data.all()
-        raw_data_map = defaultdict(list)
-        for item in raw:
-            if item.id in sids:
-                raw_data_map[item.ts].append(item)
-        yield next(formatRawSensorData(raw_data_map, sids, fs))
 
 
 while True:

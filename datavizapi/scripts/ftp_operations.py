@@ -63,7 +63,7 @@ def fetchConfigFile(ftp):
     this.files = map(lambda x: x.split()[-1], this.files)
     config_fname = filter(lambda x: x.endswith('config.txt'), this.files)[0]
 
-    ofile = open(config_fname, 'wb')
+    ofile = open(os.path.join(SCRIPT_BASE_PATH, config_fname), 'wb')
     ftp.retrbinary('RETR ' + config_fname, ofile.write)
     ofile.close()
     return config_fname

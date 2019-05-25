@@ -53,7 +53,6 @@ function dashboardInit() {
     DashboardSpectrumViz.initView();
     DashboardTimeseriesViz.initView();
     Commons.updateScreenDimensions(window.innerHeight, window.innerWidth);
-    DashboardInteraction.init(Commons.W, Commons.H);
     Commons.web_worker.postMessage(['sensorInfo']);
     Dashboard.update();
 }

@@ -18,11 +18,6 @@
 		<p><span id="value2"></span></p>
 		<p><span style="width: 100%;align-text:center; font-size:0.75em">Click to select</span></p>
 	</div>
-	<div class="export-view hidden">
-		<h4>Last 1-hour data will be downloaded for following sensors</h4>
-		<p></p>
-		<div><button class="pure-material-button-contained" id="export-yes">Export</button><button class="pure-material-button-contained" id="export-no">Not Yet</button></div>
-	</div>
 
 	<div class="navbar">
 		<div class="nav-left">
@@ -37,12 +32,6 @@
 			<div class="time-container">
 				<input id="start_time" type="text" name="start_time" style="width: 150px;">
 				<input id="start_stream" type="button" name="start_stream" style="width: 80px" value="Stream">
-			</div>
-			<div id="data-export" onclick="ondataexportclick()" title="Export data">
-				<p><a href="javascript:void(0);"><i class="fa fa-file-export"></i></a></p>
-			</div>
-			<div id="undo-selection" title="Undo last selection">
-				<p><a href="javascript:void(0);" onclick="onundoselectionclick()"><i class="fa fa-undo"></i></a></p>
 			</div>
 		</div>
 	</div>

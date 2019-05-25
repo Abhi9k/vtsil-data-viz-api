@@ -381,6 +381,20 @@ d3.select('#explore-fetch')
     	FloorwiseViz.onFetchButtonClicked();
 });
 
+function ondataexportclick() {
+    var floor_select = document.getElementById('select-floor-number');
+    var selected = floor_select.options[floor_select.selectedIndex];
+    var floor_selected = selected.value;
+	var daq_names = Commons.getDaqNamesForFloor(floor_selected);
+	var start_date = d3.select('#dtp_input_1').attr('value');
+	var end_date = d3.select('#dtp_input_2').attr('value');
+	var fname = prompt("Enter a unique file name:", "explore_data");
+	var api = "/api/export?f="+start_date+"&t="+end_date+"&fname="+fname;
+	for(var i=0; i<daq_names.length; i++) {
+		api += "&daqname="+daq_names[i];
+	}
+	d3.json(api).then(function(resp) {});
+}
 
 Commons.web_worker.onmessage = function(event) {
     var msg = event.data;

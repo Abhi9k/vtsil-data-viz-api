@@ -10,17 +10,16 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
+	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
-	<link rel="stylesheet" type="text/css" href="css/bootstrap-slider.min.css"/>
 	<link rel="stylesheet" type="text/css" href="css/button-style.css"/>
 	<link rel="stylesheet" type="text/css" href="css/style.css"/>
 </head>
 <body>
 	<div class="loader hidden"></div>
 	<div id="tooltip" class="hidden">
-		<p><span id="playback-time"></span></p>
+		<p><span id="oma-time"></span></p>
 	</div>
 	<div class="alert alert-danger hidden" role="alert">
  		Invalid query!
@@ -45,19 +44,8 @@
 	<section class="content">
 		<div id="query" class="container">
 			<div class="row">
-				<div id="select-floor" onchange="FloorwiseViz.floorSelected();" class="nav-dropdown col-sm-2" id="floor-number" title="Select floor number">
-					<div class="nav-dropdown-body" style="height: inherit; width: 100%;">
-						<select id="select-floor-number" style="height: inherit; width: 100%; padding-left: 10px;">
-							<option value="1">Floor 2</option>
-							<option value="2">Floor 3</option>
-							<option value="3">Floor 4</option>
-							<option value="4">Floor 5</option>
-							<option value="5">Terrace</option>
-						</select>
-					</div>
-				</div>
 				<div class="col-sm-4">
-					    <div class="input-group date form_datetime" data-date="" data-date-format="dd MM yyyy - HH:ii p" data-link-field="dtp_input_1">
+					    <div class="input-group date form_datetime" data-date="2019-02-16T20:45:32Z" data-date-format="dd MM yyyy - HH:ii p" data-link-field="dtp_input_1">
 					        <input class="form-control" size="16" type="text" value="" readonly placeholder="From Time">
 					        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
 							<span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
@@ -65,7 +53,7 @@
 						<input type="hidden" id="dtp_input_1" value="" /><br/>
 				</div>
 				<div class="col-sm-4">
-					    <div class="input-group date to_datetime" data-date="" data-date-format="dd MM yyyy - HH:ii p" data-link-field="dtp_input_2">
+					    <div class="input-group date to_datetime" data-date="2019-02-16T20:45:32Z" data-date-format="dd MM yyyy - HH:ii p" data-link-field="dtp_input_2">
 					        <input class="form-control" size="16" type="text" value="" readonly placeholder="To Time">
 					        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
 							<span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
@@ -73,41 +61,17 @@
 						<input type="hidden" id="dtp_input_2" value="" /><br/>
 				</div>
 				<div class="col-sm-2">
-					<input id="explore-fetch" class="btn btn-primary" type="submit" value="Fetch">
+					<input id="oma-fetch" class="btn btn-primary" type="submit" value="Fetch">
 				</div>
 			</div>
 		</div>
-
-		<div id="playback" class="container">
-			<div class="row" style="height: inherit;">
-				<div class="col-sm-10" id="playback-svg" style="height: inherit;">
-					
-				</div>
-			</div>
-		</div>
-		<div class="container" style="height: 70vh;">
-			<div class="row" style="height:100%;">
-				<div id="floor" class="col-4" style="height:100%; padding:0px;"></div>
-				<div id="floor-sensor-psd" class="col-8" style="height:100%; padding:0px;"></div>
-			</div>
-		</div>
+		<div id="psd"></div>
 	</section>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-fetch.v1.min.js"></script>
-<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script type="text/javascript" src="js/bootstrap-datetimepicker.min.js"></script>
-<script type="text/javascript" src="js/bootstrap-slider.min.js"></script>
 <script type="text/javascript" src="js/commons.js"></script>
-<script>
-function setFloorNumber() {
-	{% if request.args.get('f') is not none %}   
-	    $('select#select-floor-number').val({{ request.args.get('f') }})
-	{% else %}
-	    $('select#select-floor-number').val('1')
-	{%endif %}
-}
-</script>
-<script type="text/javascript" src="js/floorwise-viz.js"></script>
+<script type="text/javascript" src="js/oma-viz.js"></script>
 
 </body>
 </html>

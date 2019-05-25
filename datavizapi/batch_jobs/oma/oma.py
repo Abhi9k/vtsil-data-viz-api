@@ -240,6 +240,7 @@ while True:
         freq = ''
     print(freq)
     outfile.write(freq + "\n")
+    outfile.flush()
     time.sleep(90)
 
 

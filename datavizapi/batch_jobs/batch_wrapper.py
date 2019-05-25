@@ -12,19 +12,6 @@ def flat_map(r, key):
     return resp
 
 
-def create_csv(fname, record_size, records):
-    csv_file_name = fname + ".csv"
-    f = open(csv_file_name, 'w')
-    keys = records.keys()
-    records = {k: flat_map(v, lambda x: x['data']) for k, v in records.items()}
-    for i in range(record_size):
-        vals = [records[k][i] for k in keys]
-        vals = map(str, vals)
-        f.write(",".join(vals) + "\n")
-    f.close()
-    return csv_file_name
-
-
 def create_matrix(record_size, records):
     keys = records.keys()
     records = {k: flat_map(records[k], lambda x: x['data']) for k in keys}
@@ -36,7 +23,7 @@ def create_matrix(record_size, records):
 
 def fetch_data(end_time, duration, fs, output_type, is_sliding, sids=None):
     t = 0
-    while t < 2:
+    while t < 100:
         start_time = time_utils.editedTime(end_time, is_utc=True, seconds=-1 * duration)
         future_results = db_op.fetchSensorData(start_time, end_time)
         records = defaultdict(list)
@@ -49,8 +36,6 @@ def fetch_data(end_time, duration, fs, output_type, is_sliding, sids=None):
         print(len(records))
         if output_type == 'matrix':
             response = create_matrix(fs * duration, records)
-        # elif output_type == 'csv':
-        #     response = create_csv(job_name + "_" + str(fs) + "_" + str(t), fs * duration, records)
         if is_sliding:
             end_time = time_utils.editedTime(end_time, is_utc=True, seconds=1)
         else:

@@ -1,6 +1,6 @@
 import json
 from models.cassandra_models import (
-    SensorInfo, SensorDataByHour, PSDByHour)
+    SensorInfo, SensorDataByHour)
 from cassandra.cqlengine.query import BatchQuery
 from cassandra import ConsistencyLevel
 import utils.time_utils as time_utils
@@ -29,19 +29,6 @@ def sensorNameToIdMap():
     return daq_name_to_sid_map
 
 
-def formatSensorResponse(response):
-    results = {}
-    for res in response:
-        if res.id not in results:
-            results[res.id] = []
-        results[res.id].append(
-            {
-                'ts': time_utils.formatTime(res.ts, timezone, constants.RES_DATE_FORMAT),
-                'data': res.data,
-            })
-    return results
-
-
 def insertSensorInfo(fname):
     data = None
     with open(fname, 'r') as f:
@@ -64,28 +51,12 @@ def insertSensorInfo(fname):
             gen_id += 1
 
 
-def insertPSD(sid, total_power, power_dist, ts):
-    date = time_utils.roundToMinute(ts)
-    PSDByHour.consistency(ConsistencyLevel.LOCAL_ONE).create(
-        id=sid, date=date, ts=ts,
-        total_power=total_power, power_dist=power_dist)
-
-
 def insertPSDAsync(sid, total_power, power_dist, ts):
     date = time_utils.roundToMinute(ts)
     query = SimpleStatement(
         """INSERT INTO vtsil.psd_by_minute (id,date,ts,total_power,power_dist)
         VALUES(%s,%s,%s,%s,%s)""")
     return session.execute_async(query, (sid, date, ts, total_power, power_dist))
-
-
-def insertPSDBatch(ts, data):
-    date = time_utils.roundToMinute(ts)
-    with BatchQuery() as b:
-        for sid, ts, total_power, power_dist in data:
-            PSDByHour.consistency(ConsistencyLevel.LOCAL_ONE).batch(b).create(
-                id=sid, date=date, ts=ts,
-                total_power=total_power, power_dist=power_dist)
 
 
 def insertSensorData(sid, ts, data):
@@ -172,54 +143,12 @@ def fetchPSDAsyncById(from_ts, to_ts, sid, get_power_dist=False, get_avg_power=T
     return response
 
 
-def fetchPSDByDate(
-        date, from_ts, to_ts, defer_fields):
-    query = PSDByHour.objects().limit(None).consistency(ConsistencyLevel.LOCAL_ONE)
-    query = query.filter(date=date)
-    query = query.filter(ts=from_ts)
-    # query = query.filter(ts__gte=from_ts)
-    # query = query.filter(ts__lte=to_ts)
-    query = query.defer(defer_fields)
-
-    return query.all()
-
-
-def fetchPSD(
-        from_ts, to_ts, get_power_dist=True,
-        get_avg_power=True):
-    dates = splitRangeInMinutes(from_ts, to_ts)
-    defer_fields = ['date']
-    if get_power_dist is False:
-        defer_fields.append('power_dist')
-    if get_avg_power is False:
-        defer_fields.append('total_power')
-
-    response = defaultdict(list)
-
-    for date in dates:
-        records = fetchPSDByDate(
-            date, from_ts, to_ts, defer_fields)
-        for record in records:
-            response[record.id].append(record)
-    return response
-
-
 def fetchLatestPSD(from_d, sids=None, get_power_dist=True, get_avg_power=True, to_d=None):
     if to_d is None:
         to_d = time_utils.editedTime(from_d, seconds=1)
     return fetchPSDAsync(
         from_d, to_d, get_power_dist=get_power_dist,
         get_avg_power=get_avg_power)
-
-
-def fetchSensorDataByDate(date, from_ts, to_ts, defer_fields):
-    query = SensorDataByHour.objects().limit(None).consistency(ConsistencyLevel.LOCAL_ONE)
-    query = query.filter(date=date)
-    query = query.filter(ts__gte=from_ts)
-    query = query.filter(ts__lte=to_ts)
-    query = query.defer(defer_fields)
-
-    return query.all()
 
 
 def fetchSensorData(from_ts, to_ts):
@@ -266,4 +195,3 @@ def fetchSensorDataPerMinute(from_ts, to_ts):
         future_results.append(
             session.execute_async(query, [date, from_ts, to_ts]))
     return future_results
-

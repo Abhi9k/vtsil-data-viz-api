@@ -49,7 +49,7 @@ if __name__ == '__main__':
     sids = footstep_sensor_name_to_id().values()
     sids = sorted(sids)
 
-    threshold = no_activity_threshold('2019-04-27 03:00:00', '2019-04-27 03:00:10', fs, sids)
+    threshold = no_activity_threshold('2019-04-27 04:00:00', '2019-04-27 04:00:10', fs, sids)
     threshold_data_fname = 'threshold.csv'
     np.savetxt(threshold_data_fname, threshold, delimiter=',')
 

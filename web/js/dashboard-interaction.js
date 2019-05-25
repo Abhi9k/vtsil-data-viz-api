@@ -1,7 +1,5 @@
 ; var DashboardInteraction = (function(mod, Commons, WINDOW, DOCUMENT) {
-	var svg, button_x, button_y, is_zoomed=false, selected_for_export=[],
-		is_hovered=false;
-
+	var is_zoomed=false, is_hovered=false;
 	mod.is_hovered = false;
 
 	mod.latest_time = '';
@@ -49,54 +47,8 @@
 
 	mod.init = function(W, H) {
 
-
-		svg = d3.select('.interaction')
-					.append('svg')
-						.attr('width', W)
-						.attr('height', H);
-
-
-		var dimensions = Commons.getDimensions("data-export");
-		button_x = Math.floor(dimensions[2]+dimensions[0]/2);
-		button_y = Math.floor(dimensions[3]+dimensions[1]/2);
-
-
-		d3.select('#undo-selection')
-			.on('click', function() {
-				selected_for_export.pop();
-			});
-
-
-		d3.select('#data-export')
-			.on('click', function() {
-				var p_text="Nothing selected!";
-				if(selected_for_export.length > 0)
-					p_text=selected_for_export;
-				d3.select('.export-view')
-					.classed('hidden', false)
-					.select('p').text(p_text);
-		});
-
-
-		d3.select('#export-yes')
-			.on('click', function() {
-				d3.select('.export-view')
-					.classed('hidden', true);
-			});
-
-
-		d3.select('#export-no')
-			.on('click', function() {
-				d3.select('.export-view')
-					.classed('hidden', true);
-			});
 	};
 
-
-	mod.addToSelection = function(item) {
-		if(!selected_for_export.includes(item))
-			selected_for_export.push(item);
-	};
 
 	mod.moveToFloorViz = function(floor_num) {
 		WINDOW.open('/floorwise?f='+floor_num, '_blank');

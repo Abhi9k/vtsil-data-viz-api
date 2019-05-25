@@ -5,13 +5,13 @@
           return d.getFullYear() + "-" + (d.getMonth()+1).toString().padStart(2, '0') + "-" + d.getDate().toString().padStart(2, '0') + "T" + d.getHours().toString().padStart(2, '0') + ":" + d.getMinutes().toString().padStart(2, '0') + ":" + d.getSeconds().toString().padStart(2, '0') +"Z";
      }
 
-     mod.currDate = function() {
+    mod.currDate = function() {
         var d = new Date();
         d.setMinutes(0);
         d.setSeconds(0);
         d.setDate(1);
         return mod.formatDate(d);
-     }
+    }
 
 	mod.processSensorInfo = function(msg) {
 	    var sensor_info = msg[1];
@@ -30,6 +30,16 @@
 	    mod.sids = sids;
 	    mod.sid_floor_mapping = sid_floor_mapping;
 	};
+
+    mod.getDaqNamesForFloor = function(floor) {
+        var sids = Object.keys(mod.sensor_info);
+        var response = [];
+        for(var i=0; i<sids.length; i++) {
+            if(mod.sensor_info[sids[i]]['floor'] === floor)
+                response.push(mod.sensor_info[sids[i]]['daq_name']);
+        }
+        return response;
+    }
 
 	mod.getSVGElementCenter = function(box) {
     	return [box.width/2 + box.x, box.height/2 + box.y];
