@@ -5,7 +5,7 @@ import pytz
 from collections import defaultdict
 
 local_tz = pytz.timezone('US/Eastern')
-start_time = datetime(2019, 4, 27, 00, 10, 32)
+start_time = datetime(2019, 5, 9, 7, 2, 37)
 start_time_local = local_tz.localize(start_time)
 start_time_utc = start_time_local.astimezone(pytz.utc)
 
@@ -38,16 +38,22 @@ def calculate_and_save_psd(from_ts, to_ts, duration):
             continue
         if len(sid_to_data_map[sid]) > duration * sampling_freq:
             sid_to_data_map[sid] = sid_to_data_map[sid][sampling_freq:]
-        freqs, power = power_spectrum(sid_to_data_map[sid], sampling_f=sampling_freq)
-        average_power = integrate.simps(power)
-        future_results.append(db_op.insertPSDAsync(sid, average_power, list(power), to_ts))
+
+        if len(sid_to_data_map[sid]) == duration * sampling_freq:
+            freqs, power = power_spectrum(sid_to_data_map[sid], sampling_f=sampling_freq)
+            average_power = integrate.simps(power)
+            future_results.append(db_op.insertPSDAsync(sid, average_power, list(power), to_ts))
+        else:
+            return False
     for res in future_results:
         res.result()
+    return True
 
 
 while True:
     s = datetime.now()
-    calculate_and_save_psd(start_time_utc, start_time_utc, 30)
+    success = calculate_and_save_psd(start_time_utc, start_time_utc, 30)
     print((datetime.now() - s).total_seconds())
     print(start_time_utc)
-    start_time_utc = start_time_utc + timedelta(seconds=1)
+    if success:
+        start_time_utc = start_time_utc + timedelta(seconds=1)
